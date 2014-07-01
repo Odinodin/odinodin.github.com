@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+
+<html><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Odin odin blog</title><link rel="stylesheet" href="/css/styles.css" /></head><body><div id="main" class="vertical-list"><div class="navbar flex-item"><div class="title">Odin</div><div onclick="window.location.href='/'" class="nav-item clickable">Posts</div><div onclick="window.location.href='http://github.com/odinodin/odinodinstatic'" class="nav-item ender clickable">Source</div></div><div class="content flex-item"><h1>Hazelcast-køer er ikke partisjonerte</h1><p>Der. Da er det sagt, i tilfelle du leter i <a href="http://www.hazelcast.org/docs/latest/manual/html/queue.html">dokumentasjonen</a> og savner en bedre beskrivelse. </p><p>Først og fremst, jeg liker Hazelcast; det har et enkelt API, kan embeddes i applikasjonen din og funker ut av boksen når du trenger å distribuere datastrukturer på tvers av prosesser/maskiner.</p><p>Så hvordan funker køene i Hazelcast, egentlig?</p><p>Ut fra diskusjon på <a href="https://groups.google.com/forum/#!searchin/hazelcast/conceptual$20overview$20of$20how$20queues/hazelcast/Gvq2TTAaWrE/eogDIYadf2EJ">forumet deres</a>, så tror jeg det følgende gjelder:</p>
+<ul>
+  <li>En kø eksisterer kun på en node i et cluster</li>
+  <li>En kø kan ha backups på andre noder</li>
+  <li>Klientkoden trenger ikke å bry se om hvor køen er</li>
+  <li>Du har ingen garanti for rekkefølgen meldinger konsumeres på</li>
+  <li>Ettersom en kø kun eksisterer på en node i sin helhet, så kan du ikke øke maksimal størrelse på køen ved å skalere horisontalt.</li>
+  <li>Meldinger kan kun tas av fra en kø enkeltvis i en transaksjon; dvs hvis du ønsker å prosessere flere meldinger i bulk, så kan du velge mellom <a href="https://groups.google.com/d/msg/hazelcast/Gvq2TTAaWrE/RJBvR8jK1XAJ">dårlig ytelse eller å miste meldinger</a></li>
+  <li>En kø kan persisteres hvis du implementerer dette selv, typisk til et <a href="https://groups.google.com/forum/#!topic/hazelcast/Wa6gELKB3fk">sentralt repo</a>.</li>
+</ul><p>Her er et eksempel på et cluster med en kø og en backup. </p><p><img _="_" alt="Hazelcast queue" src="/images/hazelcast_queue.png" /></p><p>Et triks for å skalere størrelsen på en kø er å stripe den; dvs opprette flere køer som representerer en kø. Dvs du skriver til hver av køene round-robin style; og poller fra alle køene. Åpenbart ikke en ekstremt skalerbar løsning.</p><p>Ting jeg ikke vet så mye om enda:</p>
+<ul>
+  <li>Hvordan bestemmer Hazelcast hvilken node som skal holde på en kø?</li>
+  <li>Hvordan påvirkes ytelsen når antall noder som leser fra kø øker?</li>
+</ul></div><div id="bottom" class="flex-item horizontal-list"><a href="http://www.kodemaker.no/cv/odin/" class="bottom-box clickable">CV</a><a href="https://twitter.com/odinodin" class="bottom-box clickable">Twitter</a><a href="http://www.linkedin.com/in/odinholestandal" class="bottom-box clickable">Linkedin</a><a href="http://stackoverflow.com/users/273594/odinodin" class="bottom-box clickable">stackoverflow</a><a href="http://www.kodemaker.no" class="bottom-box clickable">Kodemaker</a><a href="https://www.flickr.com/photos/odinodin" class="bottom-box clickable">Flickr</a><a href="http://500px.com/odinodin" class="bottom-box clickable">500px</a></div></div></body></html>

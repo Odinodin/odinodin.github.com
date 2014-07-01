@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+
+<html><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Odin odin blog</title><link rel="stylesheet" href="/css/styles.css" /></head><body><div id="main" class="vertical-list"><div class="navbar flex-item"><div class="title">Odin</div><div onclick="window.location.href='/'" class="nav-item clickable">Posts</div><div onclick="window.location.href='http://github.com/odinodin/odinodinstatic'" class="nav-item ender clickable">Source</div></div><div class="content flex-item"><h1>Maven Version Housekeeping</h1><p>It is inevitable. In any project of a certain size, after a while, you are faced with the challenge of rotting dependencies. To be more precise, the world has moved on and you, for whatever reason, want to keep up. </p><p>TLDR; The versions-maven-plugin generates lots of noise. Unix can help manage it.</p><h1>Step 1 - Figure out what has changed</h1><p>Fortunately, Maven has a set of tools for figuring out which dependencies have changed. The plugin we'll be using is the <a href="http://mojo.codehaus.org/versions-maven-plugin/">versions-maven-plugin</a></p><p>The goal that helps us is the <em>display-dependency-updates</em>. Just run the following in your project:</p>
+<pre><code class="codehilite">mvn versions:display-dependency-updates
+</code></pre><p>In the following I will use the <a href="http://maven.apache.org/surefire/maven-surefire-plugin/">maven-surefire-plugin</a> source code as an example.</p><h1>Step 2 - Unix to the resque</h1><p>In a multi-module project, the versions-plugin will generate tons of text. The information you are after is buried in a verbose black hole. Most likely, several of your dependencies are the same across multiple modules. How do you sift through all this information?</p><p>One option is to break out your text editor and spend 15 minutes deleting text by hand until you find what you need. This process must be repeated manually the next time you want to check for new versions. </p><p>As fun as that sounds, we are lazy and automate. If you are ever faced with the task to handle large amounts of text, <em>always</em> try the Unix toolbox first. Chances are you will find what you need. </p><p>First, we make sure all version information is on one line. The excerpt below illustrates the problem. The dependency name is too long, making the version output break the line.</p>
+<pre><code class="codehilite"><span class="o">[</span>INFO<span class="o">]</span>   org.apache.maven.plugin-testing:maven-plugin-testing-harness ...
+<span class="o">[</span>INFO<span class="o">]</span>                                                               1.2 -&gt; 2.1
+</code></pre><p>I chose to solve this with <em>sed</em> (GNU sed), but <em>tr</em> or <em>awk</em> would do the same use.</p>
+<pre><code class="codehilite">sed -r <span class="s1">':a;N;$!ba;s/\s+(\.\.\.){1}\n(\[INFO\]){1}\s+/ /g'</span>
+</code></pre><p>Second, we get rid of the redundancy with <em>uniq</em>. Uniq requires its input to be sorted as it only compares adjacent lines for similarity. Thus we pipe the output to <em>sort</em> first.</p><p>Finally, we only care about what has actually changed. <em>Grep</em> will filter out any line that does not contain an arrow, '-&gt;'.</p><p>The final command is thus:</p>
+<pre><code class="codehilite">mvn versions:display-dependency-updates 
+| gsed -r <span class="s1">':a;N;$!ba;s/\s+(\.\.\.){1}\n(\[INFO\]){1}\s+/ /g'</span>
+| sort | uniq 
+| grep <span class="s1">'.*-&gt;'</span>
+</code></pre><p>The result is an output that is exactly what we need, no more.</p>
+<pre><code class="codehilite"><span class="o">[</span>INFO<span class="o">]</span>   commons-io:commons-io ................................... 2.0.1 -&gt; 2.4
+<span class="o">[</span>INFO<span class="o">]</span>   jmock:jmock ................................. 1.0.1 -&gt; 20031129.200437
+<span class="o">[</span>INFO<span class="o">]</span>   junit:junit ............................................ 3.8.1 -&gt; 4.11
+<span class="o">[</span>INFO<span class="o">]</span>   junit:junit ............................................ 3.8.2 -&gt; 4.11
+<span class="o">[</span>INFO<span class="o">]</span>   junit:junit ............................................ 4.8.1 -&gt; 4.11
+<span class="o">[</span>INFO<span class="o">]</span>   junit:junit ............................................. 4.10 -&gt; 4.11
+<span class="o">[</span>INFO<span class="o">]</span>   junit:junit .............................................. 4.0 -&gt; 4.11
+<span class="o">[</span>INFO<span class="o">]</span>   net.sourceforge.htmlunit:htmlunit ........................ 2.8 -&gt; 2.11
+<span class="o">[</span>INFO<span class="o">]</span>   org.apache.maven.doxia:doxia-core ....................... 1.1.4 -&gt; 1.3
+<span class="o">[</span>INFO<span class="o">]</span>   org.apache.maven.doxia:doxia-decoration-model ........... 1.1.4 -&gt; 1.3
+<span class="o">[</span>INFO<span class="o">]</span>   org.apache.maven.doxia:doxia-sink-api ................... 1.1.4 -&gt; 1.3
+<span class="o">[</span>INFO<span class="o">]</span>   org.apache.maven.doxia:doxia-site-renderer .............. 1.1.4 -&gt; 1.3
+<span class="o">[</span>INFO<span class="o">]</span>   org.apache.maven.plugin-testing:maven-plugin-testing-harness 1.2 -&gt; 2.1
+<span class="o">[</span>INFO<span class="o">]</span>   org.apache.maven.reporting:maven-reporting-api .......... 2.0.9 -&gt; 3.0
+<span class="o">[</span>INFO<span class="o">]</span>   org.apache.maven.reporting:maven-reporting-impl ........... 2.1 -&gt; 2.2
+<span class="o">[</span>INFO<span class="o">]</span>   org.apache.maven.shared:maven-common-artifact-filters ..... 1.3 -&gt; 1.4
+<span class="o">[</span>INFO<span class="o">]</span>   org.apache.maven.surefire:surefire-api ................ 2.12.4 -&gt; 2.13
+<span class="o">[</span>INFO<span class="o">]</span>   org.apache.maven.surefire:surefire-booter ............. 2.12.4 -&gt; 2.13
+<span class="o">[</span>INFO<span class="o">]</span>   org.apache.maven.surefire:surefire-junit3 ............. 2.12.4 -&gt; 2.13
+<span class="o">[</span>INFO<span class="o">]</span>   org.apache.maven:maven-artifact ....................... 2.0.9 -&gt; 3.0.5
+<span class="o">[</span>INFO<span class="o">]</span>   org.apache.maven:maven-artifact ......................... 2.0 -&gt; 3.0.5
+<span class="o">[</span>INFO<span class="o">]</span>   org.apache.maven:maven-core ........................... 2.0.9 -&gt; 3.0.5
+<span class="o">[</span>INFO<span class="o">]</span>   org.apache.maven:maven-model .......................... 2.0.9 -&gt; 3.0.5
+<span class="o">[</span>INFO<span class="o">]</span>   org.apache.maven:maven-plugin-api ..................... 2.0.9 -&gt; 3.0.5
+<span class="o">[</span>INFO<span class="o">]</span>   org.apache.maven:maven-plugin-descriptor .............. 2.0.9 -&gt; 2.2.1
+<span class="o">[</span>INFO<span class="o">]</span>   org.apache.maven:maven-project .................. 2.0.9 -&gt; 3.0-alpha-2
+<span class="o">[</span>INFO<span class="o">]</span>   org.apache.maven:maven-settings ....................... 2.0.6 -&gt; 3.0.5
+<span class="o">[</span>INFO<span class="o">]</span>   org.apache.maven:maven-toolchain ................ 2.0.9 -&gt; 3.0-alpha-2
+<span class="o">[</span>INFO<span class="o">]</span>   org.codehaus.plexus:plexus-utils ..................... 3.0.8 -&gt; 3.0.10
+<span class="o">[</span>INFO<span class="o">]</span>   org.mockito:mockito-all ................................. 1.7 -&gt; 1.9.5
+<span class="o">[</span>INFO<span class="o">]</span>   org.testng:testng ......................................... 5.7 -&gt; 6.8
+</code></pre></div><div id="bottom" class="flex-item horizontal-list"><a href="http://www.kodemaker.no/cv/odin/" class="bottom-box clickable">CV</a><a href="https://twitter.com/odinodin" class="bottom-box clickable">Twitter</a><a href="http://www.linkedin.com/in/odinholestandal" class="bottom-box clickable">Linkedin</a><a href="http://stackoverflow.com/users/273594/odinodin" class="bottom-box clickable">stackoverflow</a><a href="http://www.kodemaker.no" class="bottom-box clickable">Kodemaker</a><a href="https://www.flickr.com/photos/odinodin" class="bottom-box clickable">Flickr</a><a href="http://500px.com/odinodin" class="bottom-box clickable">500px</a></div></div></body></html>

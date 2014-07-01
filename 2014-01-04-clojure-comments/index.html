@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+
+<html><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Odin odin blog</title><link rel="stylesheet" href="/css/styles.css" /></head><body><div id="main" class="vertical-list"><div class="navbar flex-item"><div class="title">Odin</div><div onclick="window.location.href='/'" class="nav-item clickable">Posts</div><div onclick="window.location.href='http://github.com/odinodin/odinodinstatic'" class="nav-item ender clickable">Source</div></div><div class="content flex-item"><h1>Clojure comments</h1><p>There are multiple mechanisms for commenting Clojure code. I thought I'd write up my current knowledge of the subject, perhaps it will be useful for others as well. If you see any improvements, please feel free to comment (*snicker*).</p><p>A semi-colon designates the start of a comment to the end of the line. The convention is to use single semi-colons for commenting at ends of lines and to use double semi-colons to comment a block of code. </p>
+<pre><code class="codehilite"><span class="c1">;; Beware, side-effects!</span>
+<span class="p">(</span><span class="k">do </span>
+  <span class="p">(</span><span class="nf">init-canvas</span> <span class="nv">canvas</span><span class="p">)</span>                      <span class="c1">; Clear the canvas</span>
+  <span class="p">(</span><span class="nf">draw-blue-circle</span> <span class="nv">canvas</span> <span class="p">(</span><span class="ss">:ball</span> <span class="nv">model</span><span class="p">))))</span> <span class="c1">; Draw from the model  </span>
+</code></pre><p>The <a href="http://clojuredocs.org/examples_style_guide">Clojure docs style guide</a> has some more examples.</p><p>Function definitions can be commented in a string following the argument vector.</p>
+<pre><code class="codehilite"><span class="p">(</span><span class="kd">defn </span><span class="nv">log</span> <span class="p">[</span><span class="o">&amp;</span> <span class="nv">items</span><span class="p">]</span>
+  <span class="s">"Logs to the JavaScript console"</span>
+  <span class="p">(</span><span class="nf">.log</span> <span class="nv">js/console</span> <span class="p">(</span><span class="nb">apply str </span><span class="nv">items</span><span class="p">)))</span>
+</code></pre><p>Blocks of code can be commented out by the <a href="http://clojuredocs.org/clojure_core/clojure.core/comment">comment macro</a>.</p>
+<pre><code class="codehilite"><span class="p">(</span><span class="nf">comment</span>
+  <span class="c1">;; Will not be executed ...</span>
+  <span class="p">(</span><span class="nf">do-stuff</span><span class="p">))</span>
+</code></pre><p>There is a tiny little detail that you need to know about though; the comment macro yields nil!</p>
+<pre><code class="codehilite"><span class="c1">;; Ooops, will explode in your face at runtime!</span>
+<span class="p">(</span><span class="nb">+ </span><span class="mi">1</span> <span class="mi">2</span> <span class="p">(</span><span class="nb">comment </span><span class="p">(</span><span class="nb">+ </span><span class="mi">1</span> <span class="mi">1</span><span class="p">)))</span>
+<span class="nv">user=&gt;</span> <span class="nv">NullPointerException</span>   <span class="nv">clojure.lang.Numbers.ops</span> <span class="p">(</span><span class="nf">Numbers.java</span><span class="ss">:942</span><span class="p">)</span>
+</code></pre><p>The comment macro is beautifully implemented, just look at the source code:</p>
+<pre><code class="codehilite"><span class="p">(</span><span class="kd">defmacro </span><span class="nv">comment</span>
+  <span class="s">"Ignores body, yields nil"</span>
+  <span class="p">{</span><span class="ss">:added</span> <span class="s">"1.0"</span><span class="p">}</span>
+  <span class="p">[</span><span class="o">&amp;</span> <span class="nv">body</span><span class="p">])</span>
+</code></pre><p>A similar construct is the highly useful <em>#_</em> reader macro. When the Clojure reader comes across a <em>#_</em>, it ignores the following form. It does not return nil. </p>
+<pre><code class="codehilite"><span class="p">(</span><span class="nb">+ </span><span class="mi">1</span> <span class="mi">2</span> <span class="o">#</span><span class="nv">_</span><span class="p">(</span><span class="nb">+ </span><span class="mi">1</span> <span class="mi">1</span><span class="p">))</span>
+<span class="nv">user=&gt;</span> <span class="mi">3</span>
+</code></pre><p>Note that both the comment macro and #_ requires the following code to be valid. </p>
+<pre><code class="codehilite"><span class="p">(</span><span class="nb">+ </span><span class="mi">1</span> <span class="mi">2</span> <span class="o">#</span><span class="nv">_</span><span class="p">(</span> <span class="p">[</span> <span class="p">))</span> <span class="c1">; Unmatched bracket!</span>
+<span class="nv">user=&gt;</span> <span class="nv">RuntimeException</span> <span class="nv">Unmatched</span> <span class="nv">delimiter</span><span class="err">:</span> <span class="p">)</span>  
+       <span class="nv">clojure.lang.Util.runtimeException</span> <span class="p">(</span><span class="nf">Util.java</span><span class="ss">:219</span><span class="p">)</span>
+</code></pre><p>In general, only write comments where necessary; code should preferrably be self-explanatory.</p><p>For further (opinionated) thoughts on Clojure comments and other code style related topics, the <a href="https://github.com/Prismatic/eng-practices/blob/master/clojure/20130927-ns-organization.md">Prismatic engineering practices</a> is an interesting read. In a similar vein, see the <a href="http://mumble.net/~campbell/scheme/style.txt">Scheme style guide</a>.</p></div><div id="bottom" class="flex-item horizontal-list"><a href="http://www.kodemaker.no/cv/odin/" class="bottom-box clickable">CV</a><a href="https://twitter.com/odinodin" class="bottom-box clickable">Twitter</a><a href="http://www.linkedin.com/in/odinholestandal" class="bottom-box clickable">Linkedin</a><a href="http://stackoverflow.com/users/273594/odinodin" class="bottom-box clickable">stackoverflow</a><a href="http://www.kodemaker.no" class="bottom-box clickable">Kodemaker</a><a href="https://www.flickr.com/photos/odinodin" class="bottom-box clickable">Flickr</a><a href="http://500px.com/odinodin" class="bottom-box clickable">500px</a></div></div></body></html>

@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+
+<html><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Odin odin blog</title><link rel="stylesheet" href="/css/styles.css" /></head><body><div id="main" class="vertical-list"><div class="navbar flex-item"><div class="title">Odin</div><div onclick="window.location.href='/'" class="nav-item clickable">Posts</div><div onclick="window.location.href='http://github.com/odinodin/odinodinstatic'" class="nav-item ender clickable">Source</div></div><div class="content flex-item"><h1>Auto-formattering i Light Table</h1><p><a href="http://www.lighttable.com/">Light Table</a> er en fascinerende <a href="https://github.com/LightTable/LightTable">open source</a> editor med en arkitektur som gjør den lett å tilpasse og utvide. </p><p>For å gi et konkret eksempel på hva det innebærer, så skal jeg vise hvordan man kan lage sin egen auto-formatteringskommando som vil fikse formatteringen på all teksten i en fil.</p><p>Auto-formattering er noe som følger med i Light Table, men denne forutsetter at man har selektert tekst før man kjører kommandoen. </p><p>Så det jeg vil gjøre er å: </p>
+<ol>
+  <li>Selektere all tekst i en fil</li>
+  <li>Kjøre "Smart indent lines"</li>
+  <li>Deselektere teksten</li>
+</ol><p>For å få til dette åpner vi 'user.keymap' og legger til følgende oppførsel til tastatursnarveien 'Cmd + alt + l'.</p>
+<pre><code class="codehilite"><span class="p">{</span><span class="ss">:+</span> <span class="p">{</span><span class="ss">:editor</span> <span class="p">{</span>
+              <span class="s">"pmeta-alt-l"</span> <span class="p">[</span><span class="ss">:editor.select-all</span> 
+              				 <span class="ss">:smart-indent-selection</span> 
+              				 <span class="ss">:editor.selection.clear</span><span class="p">]}}}</span>
+</code></pre><p>Det som vil skje nå når du trykker 'Cmd + Alt + l' er at du fyrer av 3 kommandoer etter hverandre som til sammen vil autoformatere all tekst.</p></div><div id="bottom" class="flex-item horizontal-list"><a href="http://www.kodemaker.no/cv/odin/" class="bottom-box clickable">CV</a><a href="https://twitter.com/odinodin" class="bottom-box clickable">Twitter</a><a href="http://www.linkedin.com/in/odinholestandal" class="bottom-box clickable">Linkedin</a><a href="http://stackoverflow.com/users/273594/odinodin" class="bottom-box clickable">stackoverflow</a><a href="http://www.kodemaker.no" class="bottom-box clickable">Kodemaker</a><a href="https://www.flickr.com/photos/odinodin" class="bottom-box clickable">Flickr</a><a href="http://500px.com/odinodin" class="bottom-box clickable">500px</a></div></div></body></html>
