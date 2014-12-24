@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+
+<html><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Odin odin blog</title><link rel="stylesheet" href="/css/responsive.css" /></head></html><link type="image/png" rel="shortcut icon" href="favicon.ico" /><body><script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-36291946-1', 'auto');
+ga('send', 'pageview');
+
+</script><div id="main" class="vertical-list"><div class="navbar flex-item"><div class="title">Odin</div><a href="/" class="nav-item">Poster</a><a href="http://github.com/odinodin/odinodinstatic" class="nav-item ender">Kildekode</a></div><div class="content flex-item"><h1>Validering av Gradle properties</h1><h4>2014-09-14</h4><p>Etter mange år med Maven, så er <a href="http://www.gradle.org">Gradle</a> en befrielse å jobbe med. Du får mye ut av boksen, og når du har behov for det så kan du tilpasse bygget ditt på en enkel måte. Med enkel mener jeg at du programmerer med et programmeringsspråk rett i byggescriptet ditt og ikke med XML og plugin-artefakter. </p><h1>Fattig validering av properties</h1><p>Gradle har et konsept om properties som lar deg ta argument fra kommandolinjen. Hva skjer hvis du kjører en task og glemmer å spesifisere en påkrevd property? </p><p>La oss lage en task printProperty som bruker to properties 'x' og 'y'.</p>
+<pre><code class="codehilite"><span class="n">task</span> <span class="nf">printProps</span><span class="o">(</span><span class="nl">description:</span> <span class="s2">"Print two properties"</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">doFirst</span> <span class="o">{</span>
+        <span class="n">println</span> <span class="s2">"x: "</span> <span class="o">+</span> <span class="n">x</span>
+        <span class="n">println</span> <span class="s2">"y: "</span> <span class="o">+</span> <span class="n">y</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre><p>Og så kjører vi tasken uten properties:</p>
+<pre><code class="codehilite"><span class="nv">$&gt;</span> gradle printProps
+
+printProps FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed <span class="k">for </span>task <span class="s1">':printProps'</span>.
+&gt; Could not find property <span class="s1">'x'</span> on task <span class="s1">':printProps'</span>.   
+</code></pre><p>Ikke spesielt imponerende. Det hadde vært fint hvis vi kunne fått beskjed om alle properties som manglet, ikke bare x. Det finnes et <a href="https://issues.gradle.org/browse/GRADLE-478">forslag</a> fra 2009 om å forbedre dette i Gradle, men<br />mens vi venter så kan vi jo bare fikse det selv.</p><h1>Validering av properties</h1><p>Vi lager en hjelpefunksjon som tar inn et prosjekt og en liste med navn på påkrevde properties. Hvis prosjektet mangler en eller flere properties, så feiler vi bygget. Grunnen til at vi tar inn prosjektet som en referanse er fordi vi ikke liker å ha referanser til globale variabler i hjelpekoden vår.</p>
+<pre><code class="codehilite"><span class="kt">void</span> <span class="nf">require</span><span class="o">(</span><span class="n">Project</span> <span class="n">project</span><span class="o">,</span> <span class="n">List</span> <span class="n">props</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kt">def</span> <span class="n">missing</span> <span class="o">=</span> <span class="n">props</span><span class="o">.</span><span class="na">findAll</span> <span class="o">{</span>
+        <span class="o">!</span><span class="n">project</span><span class="o">.</span><span class="na">hasProperty</span><span class="o">(</span><span class="n">it</span><span class="o">)</span>
+    <span class="o">}</span>
+
+    <span class="k">assert</span> <span class="n">missing</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">(),</span> <span class="s2">"The task requires these properties: "</span> <span class="o">+</span> <span class="n">props</span>
+<span class="o">}</span>
+</code></pre><p>I selve tasken kaller vi valideringsmetoden i doFirst. Det må gjøres i doFirst fordi hvis ikke så skjer valideringen i konfigurasjonsfasen. Vi ønsker å kun validere properties når tasken faktisk skal kjøre.</p>
+<pre><code class="codehilite"><span class="n">task</span> <span class="nf">printProps</span><span class="o">(</span><span class="nl">description:</span> <span class="s2">"Print two properties"</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">doFirst</span> <span class="o">{</span>
+        <span class="n">require</span><span class="o">(</span><span class="n">project</span><span class="o">,</span> <span class="o">[</span><span class="s2">"x"</span><span class="o">,</span> <span class="s2">"y"</span><span class="o">])</span>
+
+        <span class="n">println</span> <span class="s2">"x: "</span> <span class="o">+</span> <span class="n">x</span>
+        <span class="n">println</span> <span class="s2">"y: "</span> <span class="o">+</span> <span class="n">y</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre><p>Hva skjer når vi kjører tasken nå?</p>
+<pre><code class="codehilite"><span class="nv">$&gt;</span> gradle printProps
+
+printProps FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed <span class="k">for </span>task <span class="s1">':printProps'</span>.
+&gt; The task requires these properties: <span class="o">[</span>x, y<span class="o">]</span>. Expression: missing.isEmpty<span class="o">()</span>
+</code></pre><h1>Sukker på toppen</h1><p>Vi kan ta dette et steg lenger og dynamisk legge til validering av properties på alle tasks som har en property med navn "requiredProps". Det gjør vi på følgende måte:</p>
+<pre><code class="codehilite"><span class="n">tasks</span><span class="o">.</span><span class="na">each</span> <span class="o">{</span> <span class="n">Task</span> <span class="n">t</span> <span class="o">-&gt;</span>
+    <span class="k">if</span> <span class="o">(!</span><span class="n">t</span><span class="o">.</span><span class="na">hasProperty</span><span class="o">(</span><span class="s2">"requiredProps"</span><span class="o">))</span> <span class="k">return</span>
+
+    <span class="c1">// Append required properties to task description</span>
+    <span class="n">String</span> <span class="n">pDesc</span> <span class="o">=</span> <span class="s2">"Required properties: "</span> <span class="o">+</span> <span class="n">t</span><span class="o">.</span><span class="na">requiredProps</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">t</span><span class="o">.</span><span class="na">description</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">t</span><span class="o">.</span><span class="na">description</span> <span class="o">+=</span> <span class="s2">" | "</span> <span class="o">+</span> <span class="n">pDesc</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+        <span class="n">t</span><span class="o">.</span><span class="na">description</span> <span class="o">=</span> <span class="n">pDesc</span>
+    <span class="o">}</span>
+
+    <span class="c1">// When task is run, verify properties</span>
+    <span class="n">t</span><span class="o">.</span><span class="na">doFirst</span> <span class="o">{</span>
+        <span class="n">require</span><span class="o">(</span><span class="n">project</span><span class="o">,</span> <span class="n">t</span><span class="o">.</span><span class="na">requiredProps</span><span class="o">)</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre><p>Deretter oppdaterer vi tasken ved å legge til en ext.requiredProps hvor vi deklarerer en liste med påkrevde properties:</p>
+<pre><code class="codehilite"><span class="n">task</span> <span class="nf">printProps</span><span class="o">(</span><span class="nl">description:</span> <span class="s2">"Print two properties"</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">ext</span><span class="o">.</span><span class="na">requiredProps</span> <span class="o">=</span> <span class="o">[</span><span class="s2">"x"</span><span class="o">,</span> <span class="s2">"y"</span><span class="o">]</span>
+
+    <span class="n">doFirst</span> <span class="o">{</span>
+        <span class="n">println</span> <span class="s2">"x: "</span> <span class="o">+</span> <span class="n">x</span>
+        <span class="n">println</span> <span class="s2">"y: "</span> <span class="o">+</span> <span class="n">y</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre><p>Dette funker på samme måte som tidligere. En bonus er at vi i tillegg skriver ut hvilke properties som tasken krever som en del av description. Effekten ser vi når vi kjører 'gradle tasks'</p>
+<pre><code class="codehilite"><span class="nv">$&gt;</span> gradle tasks
+tasks
+
+------------------------------------------------------------
+All tasks runnable from root project
+------------------------------------------------------------
+
+Other tasks
+-----------
+printProps - Print two properties | Required properties: <span class="o">[</span>x, y<span class="o">]</span>
+</code></pre><p>Det jeg ikke liker med denne løsningen er at vi i requiredProps må oppgi navnet på alle properties i en tekststreng, noe som potensielt kan glippe når vi refaktorerer.</p><p>Vet du om en bedre måte å validere properties på i Gradle? Tips meg gjerne på <a href="http://twitter.com/odinodin">twitter</a></p></div><div id="bottom" class="flex-item horizontal-list"><a href="http://www.kodemaker.no/cv/odin/" class="bottom-box">CV</a><a href="https://twitter.com/odinodin" class="bottom-box">Twitter</a><a href="http://www.linkedin.com/in/odinholestandal" class="bottom-box">Linkedin</a><a href="http://stackoverflow.com/users/273594/odinodin" class="bottom-box">stackoverflow</a><a href="http://www.kodemaker.no" class="bottom-box">Kodemaker</a><a href="https://www.flickr.com/photos/odinodin" class="bottom-box">Flickr</a><a href="http://500px.com/odinodin" class="bottom-box">500px</a></div></div></body>
