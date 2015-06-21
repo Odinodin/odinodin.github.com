@@ -8,14 +8,14 @@
 ga('create', 'UA-36291946-1', 'auto');
 ga('send', 'pageview');
 
-</script><div id="main" class="vertical-list"><div class="navbar flex-item"><div class="title">Odin</div><a href="/" class="nav-item">Posts</a><a href="http://github.com/odinodin/odinodinstatic" class="nav-item ender">Source</a></div><div class="content flex-item"><h1>Apple Watch-fragmentering</h1><h3>Hvordan håndtere den ulike oppløsningen til Apple Watch-klokkene</h3><h5>2015-03-02</h5><p>Apple Watch kommer i to utførelser, 38 mm og 42 mm. Disse har dessverre ikke samme oppløsning, noe som får konsekvens for deg som utvikler hvis du har behov for å vise bilder og ikke ønsker å downsample store bilder til små.</p><p>Dokumentasjonen til Apple er ikke fantastisk på dette punktet. Det gjelder spesielt hvis du har lyst til å bytte ut bilder dynamisk i applikasjonen din ut over instillinger du gjør i interface-builderen. Heldigvis er det enkelt å håndtere.</p><p>Her er en måte å velge riktig bilde på avhengig av hvilken hardware koden kjører på:</p>
+</script><div id="main" class="vertical-list"><div class="navbar flex-item"><div class="title">Odin</div><a href="/" class="nav-item">Posts</a><a href="http://github.com/odinodin/odinodinstatic" class="nav-item ender">Source</a></div><div class="content flex-item"><h1>Apple Watch fragmentation</h1><h3>How to handle the different screen sizes of the Apple Watch</h3><h5>2015-03-02</h5><p>The Apple Watch comes in two sizes, the 38 mm and the 42 mm. Unfortunately, these devices to not share the same resolution. This has consequences for you as a developer when you need to show images and don't want to resort to downsampling.</p><p>The Apple documentation is not fantastic at this point. However, this is easily achieved.</p><p>Here is one way of selecting a picture depending on the type of hardware the code is running on:</p>
 <ul>
-  <li><p>Prefiks alle bilder med '42_' og '38_', f.eks:</p>
+  <li><p>Prefix every picture file with '42_' and '38_', e.g:</p>
   <ul>
-    <li><a href="mailto:38_apekatt@2x.png">38_apekatt@2x.png</a></li>
-    <li><a href="mailto:42_apekatt@2x.png">42_apekatt@2x.png</a></li>
+    <li><a href="mailto:38_monkey@2x.png">38_monkey@2x.png</a></li>
+    <li><a href="mailto:42_monkey@2x.png">42_monkey@2x.png</a></li>
   </ul></li>
-  <li><p>Lag en funksjon som setter riktig prefiks til bildet for deg:</p></li>
+  <li><p>Create a function that adds the appropriate prefix to the picture path for you:</p></li>
 </ul>
 <pre><code class="codehilite">func imageName<span class="o">(</span>name: String<span class="o">)</span> -&gt; String <span class="o">{</span>
   var <span class="nv">height</span> <span class="o">=</span> WKInterfaceDevice.currentDevice<span class="o">()</span>.screenBounds.height
@@ -27,7 +27,7 @@ ga('send', 'pageview');
 <span class="o">}</span>
 </code></pre>
 <ul>
-  <li>Bruk hjelpefunksjonen over når du skal hente navnet på et bilde:</li>
+  <li>Use the helper function when retrieving an image name:</li>
 </ul>
-<pre><code class="codehilite">button.setBackgroundImageNamed<span class="o">(</span>imageName<span class="o">(</span><span class="s2">"apekatt"</span><span class="o">))</span>
-</code></pre><p>Merk at du ikke skal ta med <em>@2x.png</em> som en del av bildenavnet, dette håndterer rammeverket for deg.</p></div><div id="bottom" class="flex-item horizontal-list"><a href="http://www.kodemaker.no/cv/odin/" class="bottom-box">CV</a><a href="https://twitter.com/odinodin" class="bottom-box">Twitter</a><a href="http://www.linkedin.com/in/odinholestandal" class="bottom-box">Linkedin</a><a href="http://stackoverflow.com/users/273594/odinodin" class="bottom-box">stackoverflow</a><a href="http://www.kodemaker.no" class="bottom-box">Kodemaker</a><a href="https://www.flickr.com/photos/odinodin" class="bottom-box">Flickr</a><a href="http://500px.com/odinodin" class="bottom-box">500px</a><a href="/atom.xml" class="bottom-box">RSS</a></div></div></body>
+<pre><code class="codehilite">button.setBackgroundImageNamed<span class="o">(</span>imageName<span class="o">(</span><span class="s2">"monkey"</span><span class="o">))</span>
+</code></pre><p>Note that Xcode automatically removes the *@2x.png@ part of the image name for you.</p></div><div id="bottom" class="flex-item horizontal-list"><a href="http://www.kodemaker.no/cv/odin/" class="bottom-box">CV</a><a href="https://twitter.com/odinodin" class="bottom-box">Twitter</a><a href="http://www.linkedin.com/in/odinholestandal" class="bottom-box">Linkedin</a><a href="http://stackoverflow.com/users/273594/odinodin" class="bottom-box">stackoverflow</a><a href="http://www.kodemaker.no" class="bottom-box">Kodemaker</a><a href="https://www.flickr.com/photos/odinodin" class="bottom-box">Flickr</a><a href="http://500px.com/odinodin" class="bottom-box">500px</a><a href="/atom.xml" class="bottom-box">RSS</a></div></div></body>
