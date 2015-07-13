@@ -8,27 +8,27 @@
 ga('create', 'UA-36291946-1', 'auto');
 ga('send', 'pageview');
 
-</script><div id="main" class="vertical-list"><div class="navbar flex-item"><div class="title">Odin</div><a href="/" class="nav-item">Posts</a><a href="/about/" class="nav-item">About</a><a href="http://github.com/odinodin/odinodinstatic" class="nav-item ender">Source</a></div><div class="content flex-item"><h1 class="large-text-box">Hovering React styles</h1><div class="horizontal-left-list"><div class="date-label">2015-07-14</div><h3 class="subtitle">How to hover stuff using inline styles</h3></div><p><a href="http://http://facebook.github.io/react/">React</a> introduces a number of interesting ideas, one of which is that you can <a href="https://vimeo.com/116209150">inline your styles</a> instead of using external CSS. However, there are certain properties that <a href="http://stackoverflow.com/questions/1033156/how-to-write-ahover-in-inline-css">can't be inlined</a> with CSS alone.</p><h1>JavaScript to the rescue</h1><p>The solution is straightforward; change the style based on mouse events. Let's create a basic label component that changes color when the mouse hovers over it.</p>
+</script><div id="main" class="vertical-list"><div class="navbar flex-item"><div class="title">Odin</div><a href="/" class="nav-item">Posts</a><a href="/about/" class="nav-item">About</a><a href="http://github.com/odinodin/odinodinstatic" class="nav-item ender">Source</a></div><div class="content flex-item"><h1 class="large-text-box">React style that hover</h1><div class="horizontal-left-list"><div class="date-label">2015-07-14</div><h3 class="subtitle">How to enable hovering using inline styles</h3></div><p><a href="http://http://facebook.github.io/react/">React</a> introduces a number of interesting ideas, one of which is that you can <a href="https://vimeo.com/116209150">inline your styles</a> instead of using external CSS. However, there are certain properties that <a href="http://stackoverflow.com/questions/1033156/how-to-write-ahover-in-inline-css">can't be inlined</a> with CSS alone.</p><h1>JavaScript to the rescue</h1><p>The solution is straightforward; change the style based on mouse events. Let's create a basic label component that changes color when the mouse hovers over it.</p>
 <pre><code class="codehilite">var <span class="nv">Label</span> <span class="o">=</span> React.createClass<span class="o">({</span>
 
     getInitialState : <span class="k">function</span><span class="o">()</span> <span class="o">{</span>
-      <span class="k">return</span> <span class="o">{</span>hovered: <span class="nb">false</span><span class="o">}</span>
+      <span class="k">return</span> <span class="o">{</span> hovered: <span class="nb">false</span> <span class="o">}</span>
     <span class="o">}</span>,
 
     style: <span class="k">function</span><span class="o">()</span> <span class="o">{</span>
       <span class="k">if</span> <span class="o">(</span>this.state.hovered<span class="o">)</span> <span class="o">{</span>
-        <span class="k">return</span> <span class="o">{</span>backgroundColor: <span class="s2">"red"</span><span class="o">}</span>
+        <span class="k">return</span> <span class="o">{</span> backgroundColor: <span class="s2">"red"</span> <span class="o">}</span>
       <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-        <span class="k">return</span> <span class="o">{</span>backgroundColor: <span class="s2">"grey"</span><span class="o">}</span>
+        <span class="k">return</span> <span class="o">{</span> backgroundColor: <span class="s2">"grey"</span> <span class="o">}</span>
       <span class="o">}</span>
     <span class="o">}</span>,
 
     onMouseOver : <span class="k">function</span> <span class="o">()</span> <span class="o">{</span>
-      this.setState<span class="o">({</span>hovered:true<span class="o">})</span>;
+      this.setState<span class="o">({</span> hovered:true <span class="o">})</span>;
     <span class="o">}</span>,
 
     onMouseOut : <span class="k">function</span> <span class="o">()</span> <span class="o">{</span>
-      this.setState<span class="o">({</span>hovered:false<span class="o">})</span>;
+      this.setState<span class="o">({</span> hovered:false <span class="o">})</span>;
     <span class="o">}</span>,
 
     render: <span class="k">function</span><span class="o">()</span> <span class="o">{</span>
@@ -42,7 +42,7 @@ ga('send', 'pageview');
 
     // Initial state
     componentWillMount: <span class="k">function</span><span class="o">()</span> <span class="o">{</span>
-      this.state <span class="o">=</span> <span class="o">{</span>hovered: <span class="nb">false</span><span class="o">}</span>;
+      this.state <span class="o">=</span> <span class="o">{</span> hovered: <span class="nb">false</span> <span class="o">}</span>;
     <span class="o">}</span>,
     
     // Attach mouse listeners to the root node of the component
@@ -72,16 +72,12 @@ ga('send', 'pageview');
     // Apply the mixin 
     mixins: <span class="o">[</span>HoverMixin<span class="o">]</span>,
 
-    getInitialState : <span class="k">function</span><span class="o">()</span> <span class="o">{</span>
-      <span class="k">return</span> <span class="o">{</span>hovered: <span class="nb">false</span><span class="o">}</span>
-    <span class="o">}</span>,
-
     style: <span class="k">function</span><span class="o">()</span> <span class="o">{</span>
       // this.state.hovered comes from the mixin
       <span class="k">if</span> <span class="o">(</span>this.state.hovered<span class="o">)</span> <span class="o">{</span>
-        <span class="k">return</span> <span class="o">{</span>backgroundColor: <span class="s2">"red"</span><span class="o">}</span>
+        <span class="k">return</span> <span class="o">{</span> backgroundColor: <span class="s2">"red"</span> <span class="o">}</span>
       <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-        <span class="k">return</span> <span class="o">{</span>backgroundColor: <span class="s2">"grey"</span><span class="o">}</span>
+        <span class="k">return</span> <span class="o">{</span> backgroundColor: <span class="s2">"grey"</span> <span class="o">}</span>
       <span class="o">}</span>
     <span class="o">}</span>,
 
