@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <link href="/main.css" rel="stylesheet" type="text/css">
+  <link href="/highlight.css" rel="stylesheet" type="text/css">
+  <title>Page structure</title>
+</head>
+
+<body>
+<div class="page page-blog">
+  <header>
+  <a href="/"><h1 class="logo-text">ODINODIN</h1></a>
+  <div class="menu">
+    <a href="/">Posts</a>
+    <a href="/about">About</a>
+  </div>
+</header>
+  <main>
+    <h1>Page structure</h1>
+    <div class="published-container">
+      <h3 class="color-primary">2021-11-01</h3>
+      <div>
+        <a href="/tags/frontend"><div class="badge">frontend</div></a>
+      </div>
+    </div>
+    <div class="blog-content">
+    <p>Often we create solutions with a fixed visual structure. For example, you have a header with a menu, a page-specific body, and
+a footer. What do we do if some pages need a different structure?</p>
+<h2>The problem with fixed page structure</h2>
+<p>To illustrate the problem, I've created an <a href="https://github.com/Odinodin/react-wrap-or-not">example</a>
+of a typical React application. The app has a header with a menu, a body, and a footer. It has three different pages: Home, the cat page, and the dog page.</p>
+<p><img src="/images/2021-10-sidestruktur/sidestruktur.jpg" alt="Page structure"></p>
+<p>I've used React Router for routing since most people are probably familiar with it.</p>
+<pre><code class="language-typescript hljs"><span class="hljs-keyword">const</span> <span class="hljs-title function_">FastApp</span> = (<span class="hljs-params"></span>) =&gt; (
+  <span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">Router</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">PageStructure</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">Switch</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">Route</span> <span class="hljs-attr">path</span>=<span class="hljs-string">"/cat"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">CatPage</span>/&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">Route</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">Route</span> <span class="hljs-attr">path</span>=<span class="hljs-string">"/dog"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">DogPage</span>/&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">Route</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">Route</span> <span class="hljs-attr">path</span>=<span class="hljs-string">"/"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">HomePage</span>/&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">Route</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">Switch</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">PageStructure</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">Router</span>&gt;</span></span>
+);
+</code></pre>
+<p>The page structure looks like this:</p>
+<pre><code class="language-typescript hljs"><span class="hljs-keyword">const</span> <span class="hljs-title function_">PageStructure</span> = (<span class="hljs-params"><span class="hljs-attr">props</span>: { children: React.ReactNode }</span>) =&gt; (
+  <span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"app"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"structure"</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">Header</span>/&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"content"</span>&gt;</span>
+        {props.children}
+      <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">Footer</span>/&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
+);
+</code></pre>
+<p>Each specific page is passed in as <code>children</code>, and only needs to think about itself.</p>
+<h3>This looks fine, so what's the problem?</h3>
+<p>The challenge arises the day the product owner knocks on your door.</p>
+<blockquote>
+<p>We want to change the color of the footer, but <em>only</em> on the dog page.</p>
+</blockquote>
+<p>The dog page itself has no way to affect the footer since it lives in the <code>PageStructure</code> component.</p>
+<p>What can we do? We can just check the <code>location</code> in <code>PageStructure</code>!</p>
+<pre><code class="language-typescript hljs"><span class="hljs-keyword">const</span> <span class="hljs-title function_">PageStructure</span> = (<span class="hljs-params"><span class="hljs-attr">props</span>: { children: React.ReactNode }</span>) =&gt; {
+  <span class="hljs-keyword">const</span> location = <span class="hljs-title function_">useLocation</span>();
+  <span class="hljs-keyword">const</span> footerColor = location.<span class="hljs-property">pathname</span> === <span class="hljs-string">"/dog"</span> ? <span class="hljs-string">"pink"</span> : <span class="hljs-string">"lightgreen"</span>;
+
+  <span class="hljs-keyword">return</span> (
+    <span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"app"</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"structure"</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">Header</span>/&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"content"</span>&gt;</span>
+          {props.children}
+        <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">Footer</span> <span class="hljs-attr">background</span>=<span class="hljs-string">{footerColor}/</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
+  )
+};
+</code></pre>
+<p>The dog page has now contaminated the PageStructure component. It's a hack, but not something we lose sleep over.</p>
+<p>Until you get another message from the product owner.</p>
+<blockquote>
+<p>Cat owners like to view cat pictures in fullscreen</p>
+</blockquote>
+<p>Let's roll up our sleeves.</p>
+<p><img src="/images/2021-10-sidestruktur/fyll_skjermen.jpg" alt="Page structure"></p>
+<pre><code class="language-typescript hljs"><span class="hljs-keyword">const</span> <span class="hljs-title function_">PageStructure</span> = (<span class="hljs-params"><span class="hljs-attr">props</span>: { children: React.ReactNode }</span>) =&gt; {
+  <span class="hljs-keyword">const</span> location = <span class="hljs-title function_">useLocation</span>();
+  <span class="hljs-keyword">const</span> footerColor = location.<span class="hljs-property">pathname</span> === <span class="hljs-string">"/dog"</span> ? <span class="hljs-string">"pink"</span> : <span class="hljs-string">"lightgreen"</span>;
+
+  <span class="hljs-keyword">const</span> [fullscreen, setFullscreen] = <span class="hljs-title function_">useState</span>(<span class="hljs-literal">false</span>);
+  <span class="hljs-keyword">const</span> showFullscreenButton = location.<span class="hljs-property">pathname</span> === <span class="hljs-string">"/cat"</span>;
+  <span class="hljs-keyword">const</span> fullscreenButton = <span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{()</span> =&gt;</span> setFullscreen(!fullscreen)}&gt;Toggle Fullscreen<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span></span>;
+
+  <span class="hljs-keyword">if</span> (fullscreen &amp;&amp; showFullscreenButton) {
+    <span class="hljs-keyword">return</span> (
+      <span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
+        {fullscreenButton}
+        {props.children}
+      <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
+    );
+  }
+
+  <span class="hljs-keyword">return</span> (
+    <span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"app"</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"structure"</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">Header</span>/&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"content"</span>&gt;</span>
+          {showFullscreenButton &amp;&amp; fullscreenButton}
+          {props.children}
+        <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">Footer</span> <span class="hljs-attr">background</span>=<span class="hljs-string">{footerColor}/</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
+  )
+};
+</code></pre>
+<p>This isn't fun anymore. Let's hope there are no more change requests for the page structure.
+Here we're spreading page-specific functionality across multiple places in the code. It's starting to smell.</p>
+<h2>Clean slate</h2>
+<p>What if each page was completely blank, without any structure from above?</p>
+<p><img src="/images/2021-10-sidestruktur/fast_til_fri.png" alt="Page structure"></p>
+<p>Here's the code for the <code>FreeApp</code> component. There's no structure coming from above. Each page is responsible for applying the structure itself.</p>
+<pre><code class="language-typescript hljs"><span class="hljs-keyword">const</span> <span class="hljs-title function_">FreeApp</span> = (<span class="hljs-params"></span>) =&gt; (
+  <span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">Router</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">Switch</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">Route</span> <span class="hljs-attr">path</span>=<span class="hljs-string">"/cat"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">CatPage</span>/&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">Route</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">Route</span> <span class="hljs-attr">path</span>=<span class="hljs-string">"/dog"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">DogPage</span>/&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">Route</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">Route</span> <span class="hljs-attr">path</span>=<span class="hljs-string">"/"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">HomePage</span>/&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">Route</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">Switch</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">Router</span>&gt;</span></span>
+);
+</code></pre>
+<p>How can we get the pages that should be similar to have the same structure without copying a lot of code? We can create a
+component to handle the standard pages that have a header and footer:</p>
+<pre><code class="language-typescript hljs"><span class="hljs-keyword">const</span> <span class="hljs-title function_">StandardPage</span> = (<span class="hljs-params"><span class="hljs-attr">props</span>: { children: React.ReactNode, background?: <span class="hljs-built_in">string</span> }</span>) =&gt; {
+  <span class="hljs-keyword">const</span> { background = <span class="hljs-string">"lightgreen"</span>, children} = props;
+
+  <span class="hljs-keyword">return</span> (
+    <span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"app"</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"structure"</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">Header</span>/&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"content"</span>&gt;</span>
+          {children}
+        <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">Footer</span> <span class="hljs-attr">background</span>=<span class="hljs-string">{background}/</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
+  )
+};
+</code></pre>
+<p>Coloring the footer on the dog page then becomes:</p>
+<pre><code class="language-typescript hljs"><span class="hljs-keyword">const</span> <span class="hljs-title function_">DogPage</span> = (<span class="hljs-params"></span>) =&gt; (
+  <span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">StandardPage</span> <span class="hljs-attr">background</span>=<span class="hljs-string">{</span>"<span class="hljs-attr">pink</span>"}&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>DOGS<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">StandardPage</span>&gt;</span></span>
+);
+</code></pre>
+<p>Supporting fullscreen only affects the cat page:</p>
+<pre><code class="language-typescript hljs"><span class="hljs-keyword">const</span> <span class="hljs-title function_">CatPage</span> = (<span class="hljs-params"></span>) =&gt; {
+  <span class="hljs-keyword">const</span> [fullscreen, setFullscreen] = <span class="hljs-title function_">useState</span>(<span class="hljs-literal">false</span>);
+  <span class="hljs-keyword">const</span> fullscreenButton = <span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{()</span> =&gt;</span> setFullscreen(!fullscreen)}&gt;Toggle Fullscreen<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span></span>
+
+  <span class="hljs-keyword">const</span> body = <span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
+    {fullscreenButton}
+    <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>CAT PAGE<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
+
+  <span class="hljs-keyword">if</span> (fullscreen) {
+    <span class="hljs-keyword">return</span> body
+  } <span class="hljs-keyword">else</span> {
+    <span class="hljs-keyword">return</span> <span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">StandardPage</span>&gt;</span>{body}<span class="hljs-tag">&lt;/<span class="hljs-name">StandardPage</span>&gt;</span></span>
+  }
+};
+</code></pre>
+<h2>Summary</h2>
+<p>The downside is that there's a bit more code on each page, but that's a small price to pay. By letting each page decide for itself,
+you achieve the following:</p>
+<ul>
+<li>More understandable code. You can go to any page and find the code for the <em>entire</em> page</li>
+<li>Easier to customize each page without affecting others</li>
+</ul>
+
+    </div>
+  </main>
+  <footer>
+        <a href="https://github.com/odinodin">Github</a>
+        <a href="https://www.kodemaker.no">Kodemaker</a>
+        <a href="https://bsky.app/profile/odinodin.bsky.social">BlueSky</a>
+        <a href="https://www.linkedin.com/in/odinholestandal/">Linkedin</a>
+</footer>
+  <div>
+
+</div></div></body></html>

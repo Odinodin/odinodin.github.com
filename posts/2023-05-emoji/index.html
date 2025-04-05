@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <link href="/main.css" rel="stylesheet" type="text/css">
+  <link href="/highlight.css" rel="stylesheet" type="text/css">
+  <title>Videomoji 🎥</title>
+</head>
+
+<body>
+<div class="page page-blog">
+  <header>
+  <a href="/"><h1 class="logo-text">ODINODIN</h1></a>
+  <div class="menu">
+    <a href="/">Posts</a>
+    <a href="/about">About</a>
+  </div>
+</header>
+  <main>
+    <h1>Videomoji 🎥</h1>
+    <div class="published-container">
+      <h3 class="color-primary">2023-05-10</h3>
+      <div>
+        <a href="/tags/frontend"><div class="badge">frontend</div></a>
+      </div>
+    </div>
+    <div class="blog-content">
+    <p>Everyone loves emojis 👻</p>
+<p>Everyone loves video 🎥</p>
+<p>Here you get both at once 🤯</p>
+<p>Learn how you can combine the webcam API in the browser with emojis in a creative way.</p>
+<p>This is the sequel to the <a href="https://www.kodemaker.no/blogg/2023-02-ascii/">blog post about ASCII</a>.
+There you can read about how web technology can convert pixels in an image to ASCII and emojis.</p>
+<p>Now we're taking it a step further, and using the webcam API in the browser to transform a stream of images
+into a stream of emojis 👻👻👻</p>
+<h2>Demo time</h2>
+<p>Before I explain how it works, let's look at the finished product.</p>
+<style>
+    button {
+        background: var(--saumon);
+        color: white;
+        padding: 10px 30px;
+        text-align: center;
+        border: 0;
+        border-radius: 10px;
+        cursor: pointer;
+    }
+</style>
+<script type="application/javascript">
+const DARK_TO_BRIGHT_EMOJI = ["1F5A4", "1F977", "1F98D", "1F9BE", "1F993", "1F463", "1F47b", "1F480", "1F440", "1F9B4", "1F90D", "1F4AC", "1F5EF"].map(x => (x !== " ") ? "&#x" + x : x)
+
+const getPixelAt = (imageData, x, y) => {
+    const redIdx = y * (imageData.width * 4) + x * 4;
+    return {
+        red: imageData.data[redIdx],
+        green: imageData.data[redIdx + 1],
+        blue: imageData.data[redIdx + 2],
+        alpha: imageData.data[redIdx + 3]
+    }
+}
+
+const brightnessToChar = (darkToBrightArray, brightness) => {
+    const charIdx = Math.floor(((darkToBrightArray.length - 1) / 255) * brightness)
+    const character = darkToBrightArray[charIdx];
+    // Force the web page to actually render a space character
+    return character === " " ? "&nbsp;" : character;
+}
+
+const brightnessAt = (imageData, x, y) => {
+    const {red, green, blue, alpha} = getPixelAt(imageData, x, y);
+    if (alpha < 255) {
+        return 255;
+    }
+    return Math.floor(red + green + blue) / 3
+}
+
+const convertToDomElement = (imageData, document, darkToBrightArray, fontSize = 10) => {
+    const container = document.createElement("div");
+    //container.style = "font-family: monospace; display:grid; grid-template-columns: repeat(" + imageData.width + ", 1rem)"
+    container.style = "font-family: monospace; word-break:keep-all; font-size: " + fontSize + "px"
+
+    let content = ""
+    for (let row = 0; row < imageData.height; row++) {
+        for (let col = 0; col < imageData.width; col++) {
+            const character = brightnessToChar(darkToBrightArray, brightnessAt(imageData, col, row));
+            content += character;
+        }
+        content += "<br/>"
+    }
+
+    container.innerHTML = content;
+    return container;
+}
+
+
+const hasGetUserMedia = () => {
+    return !!(navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
+}
+
+let video
+let content;
+
+const start = () => {
+    const button  = document.getElementById("startButton");
+
+    // Video element
+    video = document.querySelector('video');
+
+    function handleSuccess(stream) {
+        video.srcObject = stream;
+        video.play()
+        content = document.getElementById("content");
+        button.style.display = "none";
+    }
+
+    video.addEventListener(
+        "canplay",
+        (ev) => setInterval(drawFrame, 100),
+        {once: true})
+
+    function handleError(error) {
+        console.log('Error for getUserMedia: ', error.message, error.name);
+    }
+
+    navigator.mediaDevices.getUserMedia({
+        audio: false,
+        video: true
+    }).then(handleSuccess).catch(handleError);
+}
+
+const dimensions = (w, aspectRatio) => {
+    const contentWidth = w / devicePixelRatio
+    let width = 0;
+    let fontSizeInPx = 0;
+    if (contentWidth >= 900) {
+        width = 48
+        fontSizeInPx = 18
+    } else if (contentWidth > 800) {
+        width = 46
+        fontSizeInPx = 18
+    } else if (contentWidth > 620) {
+        width = 44
+        fontSizeInPx = 16
+    } else if (contentWidth > 500) {
+        width = 42
+        fontSizeInPx = 16
+    } else if (contentWidth > 400) {
+        width = 40
+        fontSizeInPx = 16
+    } else if (contentWidth > 300) {
+        width = 36
+        fontSizeInPx = 12
+    } else {
+        width = 28
+        fontSizeInPx = 12
+    }
+
+    return {width, height: aspectRatio * width, fontSizeInPx}
+}
+
+const drawFrame = () => {
+    let aspectRatio = video.videoHeight / video.videoWidth;
+
+    const {width, height, fontSizeInPx} = dimensions(content.offsetWidth, aspectRatio);
+
+    video.setAttribute("width", width);
+    video.setAttribute("height", height);
+
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    context.drawImage(video, 0, 0, width, height)
+
+    const imageData = context.getImageData(0, 0, width, height)
+    const asciiDomElement = convertToDomElement(imageData, document, DARK_TO_BRIGHT_EMOJI, fontSizeInPx);
+    content.replaceChildren(asciiDomElement);
+}
+</script>
+<p><video style="position: sticky; top: 10px; display:none" playsinline="" autoplay="" muted=""></video></p>
+<div>
+    <button id="startButton" onclick="start()">👻 Start the fun 👻</button>
+    <div id="content"></div>
+</div>
+<h2>How does it work?</h2>
+<p>A video is just a sequence of images. From the previous blog post, we know how to convert pixels in a single image to emojis.
+All we need to do is:</p>
+<ol>
+<li>Request access to the webcam</li>
+<li>At regular intervals, take a picture from the webcam stream</li>
+<li>Draw that picture to a canvas element</li>
+<li>Use the canvas API to read pixel data, <em>exactly</em> as in the <a href="https://www.kodemaker.no/blogg/2023-02-ascii/">previous blog post</a></li>
+</ol>
+<h3>Access to webcam</h3>
+<p>To read a video stream from a webcam, we use the <a href="https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices">mediaDevices API</a>
+in the browser. It is <a href="https://caniuse.com/mdn-api_mediadevices">well supported</a> across all browsers and gives us the ability to request access to the user's audio and video devices.</p>
+<p>Starting a video stream can be done as follows:</p>
+<pre><code class="language-javascript hljs"><span class="hljs-keyword">const</span> stream = <span class="hljs-keyword">await</span> navigator.<span class="hljs-property">mediaDevices</span>.<span class="hljs-title function_">getUserMedia</span>({
+  <span class="hljs-attr">audio</span>: <span class="hljs-literal">false</span>,
+  <span class="hljs-attr">video</span>: <span class="hljs-literal">true</span>
+});
+</code></pre>
+<p>The user will then be asked to approve that the page gets access to a camera. The API offers several options to customize
+which device you want access to, e.g., you can easily request the camera that points forward or backward on a mobile phone.
+For our purposes in this blog post, we'll keep it simple, but there's plenty of room for customization here.</p>
+<p>To start the video, we need a video element on the page.</p>
+<pre><code class="language-html hljs language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">video</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"display:none"</span>
+       <span class="hljs-attr">playsinline</span> 
+       <span class="hljs-attr">muted</span> /&gt;</span>
+</code></pre>
+<p>We don't care about seeing the actual video stream, so we hide it with <code>display:none</code>.
+The <code>playsinline</code> attribute means that the video plays in the page, instead of fullscreen. Note that on Safari,
+the video won't play unless the video element is within the screen, so there you need to cheat
+a bit with CSS to force the element to always be within the viewport.</p>
+<p>Then we take the camera stream and send it to a video element on the page:</p>
+<pre><code class="language-javascript hljs">videoElement = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">querySelector</span>(<span class="hljs-string">'video'</span>);
+videoElement.<span class="hljs-property">srcObject</span> = stream;
+<span class="hljs-keyword">await</span> videoElement.<span class="hljs-title function_">play</span>();
+</code></pre>
+<h3>Capturing an image from the stream</h3>
+<p>Here we use the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API">canvas API</a> to read an image.
+We can use <code>context.drawImage()</code> which takes a <code>CanvasImageSource</code> as input. This can be an image, but it can also be a video element.</p>
+<pre><code class="language-javascript hljs">type <span class="hljs-title class_">CanvasImageSource</span> = 
+  <span class="hljs-title class_">HTMLOrSVGImageElement</span> | 
+  <span class="hljs-title class_">HTMLVideoElement</span> | 
+  <span class="hljs-title class_">HTMLCanvasElement</span> | 
+  <span class="hljs-title class_">ImageBitmap</span>;
+</code></pre>
+<p>So we simply do:</p>
+<pre><code class="language-javascript hljs"><span class="hljs-keyword">const</span> canvas = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">createElement</span>(<span class="hljs-string">'canvas'</span>);
+<span class="hljs-keyword">const</span> context = canvas.<span class="hljs-title function_">getContext</span>(<span class="hljs-string">'2d'</span>);
+context.<span class="hljs-title function_">drawImage</span>(videoElement, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, width, height)
+</code></pre>
+<h3>Extracting pixel data from the video image</h3>
+<p>To extract all the pixels in the image:</p>
+<pre><code class="language-javascript hljs"><span class="hljs-keyword">const</span> imageData = context.<span class="hljs-title function_">getImageData</span>(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, width, height)
+</code></pre>
+<p>We can then convert this to emojis in <em>exactly</em> the same way as I showed in the <a href="https://www.kodemaker.no/blogg/2023-02-ascii/">previous blog post</a>.</p>
+<p>It's as simple as that. Web technology never ceases to amaze!</p>
+<h2>Part 3?</h2>
+<p>Videomoji is fun, but it can get even better. The next thing I'm going to do is map all the existing emojis to the colors
+they best match. Then we'll get a video stream with colors!</p>
+<p>If you want to try this out on your own, you can read the source code <a href="https://github.com/Odinodin/ascii-picture">here</a></p>
+
+    </div>
+  </main>
+  <footer>
+        <a href="https://github.com/odinodin">Github</a>
+        <a href="https://www.kodemaker.no">Kodemaker</a>
+        <a href="https://bsky.app/profile/odinodin.bsky.social">BlueSky</a>
+        <a href="https://www.linkedin.com/in/odinholestandal/">Linkedin</a>
+</footer>
+  <div>
+
+</div></div></body></html>

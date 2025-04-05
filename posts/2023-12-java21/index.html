@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <link href="/main.css" rel="stylesheet" type="text/css">
+  <link href="/highlight.css" rel="stylesheet" type="text/css">
+  <title>Old dog and new tricks</title>
+</head>
+
+<body>
+<div class="page page-blog">
+  <header>
+  <a href="/"><h1 class="logo-text">ODINODIN</h1></a>
+  <div class="menu">
+    <a href="/">Posts</a>
+    <a href="/about">About</a>
+  </div>
+</header>
+  <main>
+    <h1>Old dog and new tricks</h1>
+    <div class="published-container">
+      <h3 class="color-primary">2023-12-06</h3>
+      <div>
+        <a href="/tags/backend"><div class="badge">backend</div></a>
+      </div>
+    </div>
+    <div class="blog-content">
+    <p>Java er et konservativt språk som verdsetter bakoverkompatibilitet over fancy ny syntaks. Vi programmerere
+elsker å velte oss i skinnende nye features, men om du har drevet med utvikling en stund, så vet du også å sette pris på
+stabilitet. Java 21 ble akkurat sluppet, og da er det verdt å ta en kikk på hvordan språket har utviklet seg i det siste.</p>
+<img src="/images/2023-12-java21/hund1.png" alt="Gammel hund" width="300" style="float: right; margin: 0;">
+<p>Java er et konservativt språk som verdsetter bakoverkompatibilitet over fancy syntaks. Vi programmerere elsker å velte oss i skinnende nye features, men om du har drevet med utvikling en stund,
+så vet du også å sette pris på stabilitet. Java 21 ble <a href="https://openjdk.org/projects/jdk/21/">akkurat sluppet</a>, og da er det verdt å ta en kikk på hvordan språket har utviklet seg i det siste.</p>
+<h2>Records in Java</h2>
+<p>Hvis du har programmert Java før, så har du helt sikkert fått med deg at <code>records</code> er blitt en del av språket <a href="https://www.oracle.com/java/technologies/javase/16-relnote-issues.html#JDK-8246771">allerede</a>.
+Andre språk har hatt lignende funksjonalitet lenge, så det var på høy tid da det landet i Java 16 i 2021.</p>
+<p>Med <code>records</code> så slipper du å skrive boilerplate som <code>constructor</code>, gettere, <code>equals</code>, <code>hashcode</code> og <code>toString</code> selv.
+I tillegg så er <code>records</code> immutable, det vil si du kan ikke endre på verdiene når de først er satt.</p>
+<h3>Immutable?</h3>
+<p>Hva betyr det i praksis? La oss opprette en <code>record</code>, og prøve å endre på et felt.</p>
+<pre><code class="language-java hljs"><span class="hljs-keyword">record</span> <span class="hljs-title class_">Hund</span><span class="hljs-params">(String navn, <span class="hljs-type">int</span> alder, List&lt;String&gt; venner)</span> {}
+
+<span class="hljs-type">var</span> <span class="hljs-variable">fido</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Hund</span>(<span class="hljs-string">"Fido"</span>, <span class="hljs-number">5</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;(List.of(<span class="hljs-string">"Hexi"</span>, <span class="hljs-string">"Loke"</span>)));
+fido.navn = <span class="hljs-string">"Knut"</span>; <span class="hljs-comment">// Kompilerer ikke fordi navn er final</span>
+</code></pre>
+<p>Som forventet så virker ikke det. Det følgende derimot, er lov;</p>
+<pre><code class="language-java hljs">fido.venner.add(<span class="hljs-string">"Storm"</span>); <span class="hljs-comment">// Muterer innholdet i listen</span>
+System.out.println(fido);   <span class="hljs-comment">// Hund[navn=Fido, alder=5 venner=[Hexi, Loke, Storm]]</span>
+</code></pre>
+<p>Records er altså ikke immutable hvis et felt er mutable.</p>
+<h3>Validation of records</h3>
+<p>For å unngå ulovlig tilstand i en applikasjon, så vil man gjerne validere <code>records</code> ved opprettelse. En ting jeg savner
+er muligheten til å sette default-verdier, så enn så lenge må du håndtere det selv.
+Det kan man fint gjøre med den kompakte <code>constructor</code>-varianten:</p>
+<pre><code class="language-java hljs"><span class="hljs-keyword">record</span> <span class="hljs-title class_">Hund</span><span class="hljs-params">(String navn, <span class="hljs-type">int</span> alder, List&lt;String&gt; venner)</span> {
+    <span class="hljs-keyword">public</span> Hund {
+      <span class="hljs-keyword">if</span> (navn == <span class="hljs-literal">null</span> || navn.isBlank()) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalArgumentException</span>(<span class="hljs-string">"Navn kan ikke være tomt"</span>);
+      <span class="hljs-keyword">if</span> (alder &lt; <span class="hljs-number">0</span>) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalArgumentException</span>(<span class="hljs-string">"Alder må være positiv"</span>);
+      <span class="hljs-keyword">if</span> (venner == <span class="hljs-literal">null</span>) venner = List.of();
+    }
+  }
+</code></pre>
+<p>For mer avanserte datastrukturer så kan man fint bruke <code>Builder</code>-patternet for å støtte validering og default-verdier,
+med den ekstra koden det medfører selvsagt.</p>
+<p>Oppsummert så er <code>records</code> et nyttig verktøy å ha i verktøykassen, og er definitivt et steg i riktig retning for Java.</p>
+<img src="/images/2023-12-java21/hund4.png" alt="Gammel hund" width="300" style="margin: 0; ">
+<h2>What is new in Java 21 for records?</h2>
+<p>En <code>record</code> er lett å konstruere, og nå kan man endelig hente ut data via <a href="https://openjdk.org/jeps/440">record patterns</a>.
+Dette er en populær feature i andre språk, som f.eks <code>JavaScript</code> og <code>Clojure</code>.</p>
+<p>Hvordan funker det?</p>
+<p>Før <code>record</code>-patterns så måtte man plukke ut verdier selv:</p>
+<pre><code class="language-java hljs"><span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">printHund</span><span class="hljs-params">(Object obj)</span> {
+    <span class="hljs-keyword">if</span> (obj <span class="hljs-keyword">instanceof</span> Hund h) {
+        System.out.println(h.navn() + <span class="hljs-string">" er "</span> + h.alder() <span class="hljs-string">" år gammel"</span>);
+    }
+}
+</code></pre>
+<p>I Java 21 kan du nå hente ut verdiene fra <code>recorden</code> på følgende måte:</p>
+<pre><code class="language-java hljs"><span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">printHund</span><span class="hljs-params">(Hund obj)</span> {
+    <span class="hljs-keyword">if</span> (obj <span class="hljs-keyword">instanceof</span> <span class="hljs-title function_">Hund</span><span class="hljs-params">(String navn, <span class="hljs-type">int</span> alder, <span class="hljs-keyword">var</span> venner)</span>) {
+        System.out.println(navn + <span class="hljs-string">" er "</span> + alder + <span class="hljs-string">" år gammel"</span>);
+    }
+}
+</code></pre>
+<p>Du kan spesifisere typen til feltene i <code>recorden</code>, eller du kan bruke <code>var</code>.</p>
+<p>Du kan gjøre destructuring i flere nivåer også.</p>
+<pre><code class="language-java hljs"><span class="hljs-keyword">record</span> <span class="hljs-title class_">Katt</span><span class="hljs-params">(String navn, Hund fiende)</span> {}
+
+<span class="hljs-type">var</span> <span class="hljs-variable">katt</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Katt</span>(<span class="hljs-string">"Mjau"</span>, fido);
+
+<span class="hljs-keyword">if</span> (roach <span class="hljs-keyword">instanceof</span> <span class="hljs-title function_">Katt</span><span class="hljs-params">(<span class="hljs-keyword">var</span> navn, Hund(<span class="hljs-keyword">var</span> hundeNavn, <span class="hljs-keyword">var</span> _x, <span class="hljs-keyword">var</span> _y)</span>)) {
+      System.out.println(<span class="hljs-string">"Katten heter "</span> + navn + <span class="hljs-string">" og eies av "</span> + hundeNavn );
+}
+</code></pre>
+<p>Merk at du <em>må</em> spesifisere alle feltene i en record når du destructurer, selv om du ikke trenger de.</p>
+<p>Dette blir riktignok litt bedre når <a href="https://openjdk.org/jeps/443">JEP-443</a> ferdigstilles, men den featuren er kun i preview i Java 21.
+Da kan du markere parameter som unødvendige ved å bruke underscore.</p>
+<p>Jeg lurer litt på hvorfor Java har valgt å basere <code>record</code> patterns på posisjon og ikke navn, slik som f.eks JavaScript
+Problemet er illustrert i eksemplet under. Her er det fort gjort å blande navnene, ettersom navnet på <code>record</code>-feltene er posisjonsbaserte:</p>
+<pre><code class="language-java hljs"><span class="hljs-keyword">if</span> (obj <span class="hljs-keyword">instanceof</span> <span class="hljs-title function_">Hund</span><span class="hljs-params">(String venner, <span class="hljs-type">int</span> navn, <span class="hljs-keyword">var</span> alder)</span>) {
+        System.out.println(venner + <span class="hljs-string">" er "</span> + navn + <span class="hljs-string">" år gammel"</span>);
+}
+</code></pre>
+<h2>Pattern matching with switch</h2>
+<img src="/images/2023-12-java21/hund3.png" alt="Gammel hund" width="300" style="float: right; margin: 0;">
+<p>Switch i Java har frem til nå vært sørgelige greier. Med Java 21, så kan man endelig gjøre pattern
+matching.</p>
+<p>Da kan man f.eks gjøre følgende, hvor man matcher mot typen til objektet:</p>
+<pre><code class="language-java hljs"><span class="hljs-keyword">static</span> String <span class="hljs-title function_">formattere</span><span class="hljs-params">(Object obj)</span> {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">switch</span> (obj) {
+        <span class="hljs-keyword">case</span> Integer i -&gt; String.format(<span class="hljs-string">"int %d"</span>, i);
+        <span class="hljs-keyword">case</span> Long l    -&gt; String.format(<span class="hljs-string">"long %d"</span>, l);
+        <span class="hljs-keyword">case</span> Double d  -&gt; String.format(<span class="hljs-string">"double %f"</span>, d);
+        <span class="hljs-keyword">case</span> String s  -&gt; String.format(<span class="hljs-string">"String %s"</span>, s);
+        <span class="hljs-keyword">default</span>        -&gt; obj.toString();
+    };
+}
+</code></pre>
+<p>Nå støtter <code>switch</code> matching mot <code>null</code>:</p>
+<pre><code class="language-java hljs"><span class="hljs-keyword">static</span> String <span class="hljs-title function_">behandle</span><span class="hljs-params">(String input)</span> {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">switch</span> (input) {
+      <span class="hljs-keyword">case</span> <span class="hljs-literal">null</span> -&gt; <span class="hljs-string">"Er null"</span>;
+      <span class="hljs-keyword">case</span> <span class="hljs-string">"Fido"</span>, <span class="hljs-string">"Hexi"</span> -&gt; <span class="hljs-string">"En hund"</span>;
+      <span class="hljs-keyword">default</span> -&gt; <span class="hljs-string">"Noe annet"</span>;
+    };
+}
+</code></pre>
+<p>Hvis du har en <code>null</code>-sjekk i <code>switchen</code> så slipper du å sjekke det på forhånd. Merk at <code>default</code> <em>ikke</em> matcher mot null,
+så du kan fortsatt få <code>NullPointer</code> i en switch om du ikke har med <code>null</code>-casen.</p>
+<p>Du kan nå også begrense en case med en påfølgende <code>when</code>:</p>
+<pre><code class="language-java hljs"><span class="hljs-keyword">static</span> String <span class="hljs-title function_">aldersVurdering</span><span class="hljs-params">(Hund hund)</span> {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">switch</span> (hund) {
+      <span class="hljs-keyword">case</span> <span class="hljs-title function_">Hund</span><span class="hljs-params">(<span class="hljs-keyword">var</span> _n, <span class="hljs-keyword">var</span> alder, <span class="hljs-keyword">var</span> _v)</span> <span class="hljs-keyword">when</span> (alder &lt; <span class="hljs-number">3</span>) -&gt; <span class="hljs-string">"Ung"</span>;
+      <span class="hljs-keyword">case</span> <span class="hljs-title function_">Hund</span><span class="hljs-params">(<span class="hljs-keyword">var</span> _n, <span class="hljs-keyword">var</span> alder, <span class="hljs-keyword">var</span> _v)</span> <span class="hljs-keyword">when</span> (alder &lt; <span class="hljs-number">10</span> ) -&gt; <span class="hljs-string">"Gammel"</span>;
+      <span class="hljs-keyword">default</span> -&gt; <span class="hljs-string">"Kjempegammel"</span>;
+    };
+  }
+</code></pre>
+<p>Det blir mer lesbart ettersom du da får et skille mellom matchingen på venstresiden av pilen og hvordan tilfellet skal
+håndteres på høyresiden.</p>
+<h2>Virtual threads</h2>
+<p>Dette er den mest spennende featuren i Java 21, men den fortjener en egen bloggpost. Sammen med
+<a href="https://openjdk.org/jeps/453">structured concurrency</a> (som er i preview), så åpner man opp for en forenklet
+programmeringsmodell for concurrency.</p>
+<h2>Is Java an exciting alternative in 2023?</h2>
+<img src="/images/2023-12-java21/hund2.png" alt="Gammel hund" width="300" style="float: right; margin: 0;">
+<p>Java har "the last mover advantage". Det vil si at man legger til ny funksjonalitet etter at de mer fremoverlente
+språkene har avslørt hva som fungerer bra i praksis. Ved å levere endringer i små steg, så kan Java oppdateres
+mye oftere enn tidligere. Det snakket en av arkitektene bak Java, Brian Goetz, om på <a href="https://www.youtube.com/watch?v=TIHx6MNt79Y">årets Devoxx</a>.</p>
+<p>Java blir altså gradvis mer moderne. Det blir spennende å følge med i årene fremover
+om denne nye strategien vil holde Java relevant i konkurransen med andre språk.</p>
+
+    </div>
+  </main>
+  <footer>
+        <a href="https://github.com/odinodin">Github</a>
+        <a href="https://www.kodemaker.no">Kodemaker</a>
+        <a href="https://bsky.app/profile/odinodin.bsky.social">BlueSky</a>
+        <a href="https://www.linkedin.com/in/odinholestandal/">Linkedin</a>
+</footer>
+  <div>
+
+</div></div></body></html>

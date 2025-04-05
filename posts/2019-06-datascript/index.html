@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <link href="/main.css" rel="stylesheet" type="text/css">
+  <link href="/highlight.css" rel="stylesheet" type="text/css">
+  <title>Data belongs in a database</title>
+</head>
+
+<body>
+<div class="page page-blog">
+  <header>
+  <a href="/"><h1 class="logo-text">ODINODIN</h1></a>
+  <div class="menu">
+    <a href="/">Posts</a>
+    <a href="/about">About</a>
+  </div>
+</header>
+  <main>
+    <h1>Data belongs in a database</h1>
+    <div class="published-container">
+      <h3 class="color-primary">2019-06-19</h3>
+      <div>
+        <a href="/tags/frontend"><div class="badge">frontend</div></a>
+      </div>
+    </div>
+    <div class="blog-content">
+    <p>When you make a website these days, the chances are that the client needs to keep track of some state.
+You'll need to make some choices regarding how the state should be structured for reading and writing.</p>
+<p>The following questions arise:</p>
+<ul>
+<li>Should you save state as nested structures?</li>
+<li>Should you normalize the data into entities and have references between them?</li>
+<li>Should you duplicate data in order to quickly get answers to certain kinds of queries?</li>
+</ul>
+<p>In a non-trivial application you quickly end up writing a halfway implementation of an in-memory database, haunted by bugs.
+To do it correctly is a non-trivial exercise in futility. Especially if you duplicate the same state in the client it's
+pretty easy to end up in a ditch.</p>
+<h2>What is the solution?</h2>
+<p>What we want is to be able to make arbitrary queries without having to hand-code our own data structures, while having all
+state stored in one place. In other words, a database. To achieve performance, we need indexes, which means tradeoffs
+in terms of memory usage and write performance, but that's not a big concern these days with powerful clients.</p>
+<p><a href="https://github.com/tonsky/datascript">DataScript</a> is a Clojure(Script)-based immutable in-memory database that supports
+queries via <a href="http://www.learndatalogtoday.org">Datalog</a> (think SQL, but better). It's inspired by
+<a href="https://www.datomic.com">Datomic</a>, just without history and persistence support.</p>
+<p>You create a DataScript database when a page loads. You put data in and retrieve it, and then the database is discarded
+when the user leaves the page. You can certainly persist it via local-storage in the browser if you want, but you'll
+have to write that glue code yourself. The point is to get a good API for making arbitrary queries without
+sacrificing performance.</p>
+<h2>Example</h2>
+<p>When using DataScript, you need to declare a schema for your database. This means specifying which attributes are unique
+and which are references. A reference may be one to one, or one to many</p>
+<p>Here is an example where we have modelled animals and the zoos they live in:</p>
+<pre><code class="language-clj hljs language-clojure">(<span class="hljs-keyword">def</span> <span class="hljs-title">schema</span> {<span class="hljs-symbol">:zoo/name</span>     {<span class="hljs-symbol">:db/unique</span> <span class="hljs-symbol">:db.unique/identity</span>}
+
+             <span class="hljs-symbol">:animal/name</span>     {<span class="hljs-symbol">:db/unique</span> <span class="hljs-symbol">:db.unique/identity</span>}
+             <span class="hljs-symbol">:animal/lives-in</span> {<span class="hljs-symbol">:db/valueType</span> <span class="hljs-symbol">:db.type/ref</span> 
+                               <span class="hljs-symbol">:db/cardinality</span> <span class="hljs-symbol">:db.cardinality/one</span>}})
+</code></pre>
+<h3>Writing data</h3>
+<p>You add data like this:</p>
+<pre><code class="language-clj hljs language-clojure">(<span class="hljs-name">require</span> '[datascript.core <span class="hljs-symbol">:as</span> d])
+(<span class="hljs-keyword">def</span> <span class="hljs-title">conn</span> (<span class="hljs-name">d/create-conn</span> schema))
+
+(<span class="hljs-name">d/transact!</span> conn [{<span class="hljs-symbol">:zoo/name</span> <span class="hljs-string">"Paris Zoo"</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:zoo/address</span> <span class="hljs-string">"France"</span>}
+                   {<span class="hljs-symbol">:zoo/name</span> <span class="hljs-string">"Stockholm Zoo"</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:zoo/address</span> <span class="hljs-string">"England"</span>}] 
+</code></pre>
+<p>Here, two zoos are created in a transaction. Note that a zoo has an address, without you needing to declare it in the schema.</p>
+<p>If you want to update the address, you use the unique identifier of the entity, <code>:zoo/name</code></p>
+<pre><code class="language-clj hljs language-clojure">(<span class="hljs-name">d/transact!</span> conn [{<span class="hljs-symbol">:zoo/name</span> <span class="hljs-string">"Stockholm Zoo"</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:zoo/adresse</span> <span class="hljs-string">"Sweden"</span>}])
+</code></pre>
+<p>We can also add some animals:</p>
+<pre><code class="language-clj hljs language-clojure">(<span class="hljs-name">d/transact!</span> conn [{<span class="hljs-symbol">:animal/name</span> <span class="hljs-string">"Julius"</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:animal/age</span> <span class="hljs-number">14</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:animal/lives-in</span> {<span class="hljs-symbol">:zoo/name</span> <span class="hljs-string">"Paris Zoo"</span>}}
+                   {<span class="hljs-symbol">:animal/name</span> <span class="hljs-string">"Barney"</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:animal/age</span> <span class="hljs-number">3</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:animal/lives-in</span> {<span class="hljs-symbol">:zoo/name</span> <span class="hljs-string">"London Zoo"</span>}}
+                   {<span class="hljs-symbol">:animal/name</span> <span class="hljs-string">"Nellie"</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:animal/age</span> <span class="hljs-number">5</span>}])
+</code></pre>
+<h3>Queries</h3>
+<p>Now we can retrieve data. Here are some examples.</p>
+<p>All animals:</p>
+<pre><code class="language-clj hljs language-clojure">(<span class="hljs-name">d/q</span> '[<span class="hljs-symbol">:find</span> [?e ...] <span class="hljs-symbol">:where</span> [?e <span class="hljs-symbol">:animal/name</span>]] db)
+=&gt; [<span class="hljs-number">1</span> <span class="hljs-number">3</span> <span class="hljs-number">5</span>]
+</code></pre>
+<p>These are the IDs of the entities. We want to retrieve the attributes, and you can do it like this:</p>
+<pre><code class="language-clj hljs language-clojure">(<span class="hljs-name"><span class="hljs-built_in">-&gt;&gt;</span></span> (<span class="hljs-name">d/q</span> '[<span class="hljs-symbol">:find</span> [?e ...] <span class="hljs-symbol">:where</span> [?e <span class="hljs-symbol">:animal/name</span>]] db)
+       (<span class="hljs-name"><span class="hljs-built_in">map</span></span> #(<span class="hljs-name">d/entity</span> db %))
+       (<span class="hljs-name"><span class="hljs-built_in">map</span></span> #(<span class="hljs-name"><span class="hljs-built_in">select-keys</span></span> % [<span class="hljs-symbol">:db/id</span> <span class="hljs-symbol">:animal/name</span> <span class="hljs-symbol">:animal/age</span> <span class="hljs-symbol">:animal/lives-in</span>])))
+=&gt; [{<span class="hljs-symbol">:db/id</span> <span class="hljs-number">1</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:animal/name</span> <span class="hljs-string">"Julius"</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:alder</span> <span class="hljs-number">14</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:animal/lives-in</span> {<span class="hljs-symbol">:db/id</span> <span class="hljs-number">2</span>}} 
+    {<span class="hljs-symbol">:db/id</span> <span class="hljs-number">3</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:animal/name</span> <span class="hljs-string">"Barney"</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:alder</span> <span class="hljs-number">3</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:animal/lives-in</span> {<span class="hljs-symbol">:db/id</span> <span class="hljs-number">4</span>}} 
+    {<span class="hljs-symbol">:db/id</span> <span class="hljs-number">5</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:animal/name</span> <span class="hljs-string">"Nellie"</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:alder</span> <span class="hljs-number">5</span>}]
+</code></pre>
+<p>Alternatively, we can use <a href="https://docs.datomic.com/on-prem/pull.html">pull syntax</a> to retrieve all attributes directly:</p>
+<pre><code class="language-clj hljs language-clojure">(<span class="hljs-name">d/q</span> '[<span class="hljs-symbol">:find</span> [(<span class="hljs-name">pull</span> ?e [*]) ...] <span class="hljs-symbol">:where</span> [?e <span class="hljs-symbol">:animal/name</span>]] db)
+=&gt; [{<span class="hljs-symbol">:db/id</span> <span class="hljs-number">1</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:animal/name</span> <span class="hljs-string">"Julius"</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:alder</span> <span class="hljs-number">14</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:animal/lives-in</span> {<span class="hljs-symbol">:db/id</span> <span class="hljs-number">2</span>}} 
+    {<span class="hljs-symbol">:db/id</span> <span class="hljs-number">3</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:animal/name</span> <span class="hljs-string">"Barney"</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:alder</span> <span class="hljs-number">3</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:animal/lives-in</span> {<span class="hljs-symbol">:db/id</span> <span class="hljs-number">4</span>}} 
+    {<span class="hljs-symbol">:db/id</span> <span class="hljs-number">5</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:animal/name</span> <span class="hljs-string">"Nellie"</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:alder</span> <span class="hljs-number">5</span>}]
+</code></pre>
+<p>Find a zoo based on name:</p>
+<pre><code class="language-clj hljs language-clojure">(<span class="hljs-name">d/q</span> '[<span class="hljs-symbol">:find</span> (<span class="hljs-name">pull</span> ?e [*]) .
+       <span class="hljs-symbol">:where</span> [?e <span class="hljs-symbol">:zoo/name</span> <span class="hljs-string">"London Zoo"</span>]]
+    db)    
+=&gt;  {<span class="hljs-symbol">:db/id</span> <span class="hljs-number">7</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:zoo/address</span> <span class="hljs-string">"England"</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:zoo/name</span> <span class="hljs-string">"London Zoo"</span>}
+</code></pre>
+<p>Since name is a unique attribute we can simplify even further:</p>
+<pre><code class="language-clj hljs language-clojure">(<span class="hljs-name">d/entity</span> db [<span class="hljs-symbol">:zoo/name</span> <span class="hljs-string">"London Zoo"</span>])
+</code></pre>
+<p>To find all wild animals who do not live in a zoo:</p>
+<pre><code class="language-clj hljs language-clojure">(<span class="hljs-name">d/q</span> '[<span class="hljs-symbol">:find</span> [(<span class="hljs-name">pull</span> ?a [*]) ...]
+       <span class="hljs-symbol">:where</span>
+       [?a <span class="hljs-symbol">:animal/name</span>]
+       (<span class="hljs-name"><span class="hljs-built_in">not</span></span> [?a <span class="hljs-symbol">:animal/lives-in</span>])]
+    db)
+=&gt; [{<span class="hljs-symbol">:db/id</span> <span class="hljs-number">5</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:animal/name</span> <span class="hljs-string">"Nellie"</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:alder</span> <span class="hljs-number">5</span>}]]
+</code></pre>
+<h2>Summary</h2>
+<p>We have used DataScript with great success in a client project. You avoid messy, custom-developed state code and can
+rely on a well-thought-out query language. A bonus is that DataScript follows the same data abstraction as Datomic, which
+opens up exciting solutions where you can easily stream data from the backend to the frontend.
+<a href="https://www.kodemaker.no/magnar">Magnar</a> has a
+<a href="/strom-data-til-nettleseren-uten-a-lage-det-pa-nytt-hver-gang/">thought-provoking presentation</a> that is worth checking out.</p>
+<h2>What about JavaScript?</h2>
+<p>DataScript has a JavaScript API, but it's not particularly tailored for use from JavaScript. There are
+alternatives like <a href="https://google.github.io/lovefield/">Lovefield</a> that look promising. It wouldn't surprise me if
+we see more databases in the frontend in the JavaScript world in the future.</p>
+
+    </div>
+  </main>
+  <footer>
+        <a href="https://github.com/odinodin">Github</a>
+        <a href="https://www.kodemaker.no">Kodemaker</a>
+        <a href="https://bsky.app/profile/odinodin.bsky.social">BlueSky</a>
+        <a href="https://www.linkedin.com/in/odinholestandal/">Linkedin</a>
+</footer>
+  <div>
+
+</div></div></body></html>

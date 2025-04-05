@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <link href="/main.css" rel="stylesheet" type="text/css">
+  <link href="/highlight.css" rel="stylesheet" type="text/css">
+  <title>Shepherding browsers</title>
+</head>
+
+<body>
+<div class="page page-blog">
+  <header>
+  <a href="/"><h1 class="logo-text">ODINODIN</h1></a>
+  <div class="menu">
+    <a href="/">Posts</a>
+    <a href="/about">About</a>
+  </div>
+</header>
+  <main>
+    <h1>Shepherding browsers</h1>
+    <div class="published-container">
+      <h3 class="color-primary">2024-07-03</h3>
+      <div>
+        <a href="/tags/frontend"><div class="badge">frontend</div></a>
+        <a href="/tags/security"><div class="badge">security</div></a>
+      </div>
+    </div>
+    <div class="blog-content">
+    <style>
+.infoboks-container {
+  display: flex; 
+  flex-wrap: wrap; 
+  gap: 40px;
+}
+
+.infoboks {
+  background-color: var(--saumon); 
+  padding: 8px; 
+  border-radius: 4px;
+  flex: 1 0 300px; 
+  align-self: center
+}
+</style>
+<p>Kids without limits can do the darnedest things, to their parents chagrin. The same goes for web browsers, they can
+do a lot of stuff their users did not intend or condone.</p>
+<p>This is an attempt to explain <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP">Content Security Policy (CSP)</a> as a kind of nanny for browsers.</p>
+<img src="/images/2024-06-csp/tante_csp.png" alt="Tante CSP" width="500" style="margin: 0; ">
+<h2>What is Content Security Policy?</h2>
+<p>Content Security Policy is an important part of the toolbox when securing a web page. It's main purpose is to detect
+and mitigate certain kinds of attacks, mainly <a href="https://owasp.org/www-community/attacks/xss/">Cross-Site Scripting (XSS)</a>.</p>
+<p>Det bidrar til å oppdage og begrense visse typer angrep, i hovedsak <a href="https://owasp.org/www-community/attacks/xss/">Cross-Site Scripting (XSS)</a>.
+Det innebærer at hackere klarer å lure inn <strong>ondsinnet</strong> innhold på nettsiden med formål å endre utseende eller oppførsel. En angriper har mange måter å
+utføre XSS-angrep på.</p>
+<div class="infoboks-container">
+  <img src="/images/2024-06-csp/xss.png" alt="XSS" width="500" style="margin: 10px 0; ">
+  <div class="infoboks">Her er et eksempel på et XSS-angrep. Ved å legge inn et script i kommentarfeltet, så kan ondsinnet kode bli kjørt når andre leser kommentarene.</div>
+</div>
+<p>This shows how important it is to validate all content from the outside.</p>
+<p>How does using a Content Security policy help against XSS attacks? To write about HTTP-headers might be a <a href="https://w3c.github.io/webappsec-csp">tad bit boring</a>,
+so here I'll try to explain it through a story.</p>
+<h2>Hold on to your horses, here comes a story</h2>
+<img src="/images/2024-06-csp/lekeplass.png" alt="Lekeplass" width="400" style="margin: 10px; ">
+<p>Se for deg en nettside som en lekeplass full av morsomme lekestativ. Et sted hvor brukere sender nettleserne sine for å leke.
+Hvert lekestativ har skilt med regler som forklarer hvordan de skal brukes.</p>
+<img src="/images/2024-06-csp/disse.png" alt="Leker og regler" width="400" style="margin: 10px; ">
+<p>nettleserne er ekstremt oppdragne og følger <em>alltid</em> reglene. Lekeplassen er også pyntet med fine bilder.</p>
+<img src="/images/2024-06-csp/bilder.png" alt="Fine bilder" width="400" style="margin: 10px; ">
+<p>Brukerne stoler blindt på at lekeplassen er trygg. Når nettleseren er ferdig på lekeplassen, forteller de til brukerne hva de har gjort og sett.</p>
+<p>La oss ta en nærmere kikk på hva som skjer når Bente Bruker sender Nils Nettleser inn på <strong>supersnill.no</strong>-lekeplassen.</p>
+<img src="/images/2024-06-csp/bruker_nettleser.png" alt="Bruker og nettleser" width="600" style="margin: 10px; ">
+<p>På skiltet til lekeplassen henger det et hengelås-ikon, og det tolker Bente Bruker på at dette er en lekeplass hun kan stole på.</p>
+<img src="/images/2024-06-csp/lekeplass.png" alt="Lekeplass" width="400" style="margin: 10px; ">
+<p>I det mørkeste hjørnet av lekeplassen henger det noen ordentlig slemme bøller. Det eneste de vil er å plage, rane og
+ødelegge for de som leker. Favorittaktiviteten deres er cross-site-scripting-rampestreker.</p>
+<img src="/images/2024-06-csp/bully.png" alt="Bølle" width="200" style="margin: 0; ">
+<p>Etter en stund på lekeplassen kommer Nils Nettleser tilbake og forteller om alt som skjedde hos <strong>supersnill.no</strong>.
+Dette var ikke en trygg lekeplass likevel!</p>
+<img src="/images/2024-06-csp/etter_lekeplass.png" alt="Bølle" width="700" style="margin: 0; ">
+<p>Bente Bruker klikker i vinkel og ringer til <strong>supersnill.no</strong> for å fortelle om problemene. De mistenker umiddelbart
+cross-site-scripting-rampestreker og ansetter sporenstreks en tidligere barnehagetante, tante CSP, for å passe på nettleserne.</p>
+<img src="/images/2024-06-csp/tante_csp.png" alt="Bølle" width="500" style="margin: 0; ">
+<p>Bente Bruker sender deretter Nils Nettleser tilbake til <strong>supersnill.no</strong>, hvor han blir møtt av tante CSP.</p>
+<p>"Slapp av lille venn! Jeg skal passe på deg, bare gå og lek du."</p>
+<img src="/images/2024-06-csp/csp_lekeplass.png" alt="Bølle" width="500" style="margin: 0; ">
+<p>Inne på <strong>supersnill.no</strong> så treffer Nils Nettleser på et regelskilt. Pliktoppfyllende som han er, så følger han alltid reglene.
+Han vet ikke at disse reglene er lurt inn av en bølle.</p>
+<img src="/images/2024-06-csp/js_xss.png" alt="Regelskilt" width="500" style="margin: 10px 0; ">
+<p>Tante CSP skriker ut og ødelegger de ondsinnede reglene før Nils Nettleser rekker å følge de.</p>
+<div class="infoboks-container">
+  <img src="/images/2024-06-csp/js_csp.png" width="500" alt="Regelskilt" style="flex: 0 0 500px; margin: 0;">
+  <div class="infoboks">
+  Headeren <b>Content-Security-Profile: script-src 'self' </b> tillater kun javascript fra <b>supersnill.no</b>. 
+  Det er mulig å tillate inline-script også ved å legge til <b>'unsafe-inline'</b>, men som <b>unsafe</b> hinter til, så er det ikke å 
+  anbefale.
+  </div>
+</div>
+<p>Det tar ikke lang tid før den neste bølla prøver seg på Nils Nettleser. Denne gangen har bølla på et eller annet vis
+klart å snike inn et bilde fra utsiden.</p>
+<img src="/images/2024-06-csp/bilde_xss.png" alt="Bilde XSS" width="500" style="margin: 10px 0; ">
+<p>Nok en gang reagerer tante CSP og fjerner bildene fra bølla.</p>
+<div class="infoboks-container">
+  <img src="/images/2024-06-csp/bilde_csp.png" width="500" alt="Bilde CSP" style="flex: 0 0 500px; margin: 0;">
+  <div class="infoboks">
+  Headeren <b>Content-Security-Profile: image-src 'self' </b> tillater kun bilder fra <b>supersnill.no</b>. 
+  Om du trenger å vise <b>data</b> eller <b>blob</b>-URLer, f.eks for å tegne dynamiske bilder til canvas, så må det 
+  åpnes for eksplisitt i <b>image-src</b>-regelen.
+  </div>
+</div>
+<p>Ved neste hjørne så venter nok en overraskelse. En bølle har smuglet inn et par med tullebriller på <strong>supersnill.no</strong></p>
+<img src="/images/2024-06-csp/briller_xss.png" alt="Brille XSS" width="500" style="margin: 10px 0;">
+<p>Nils Nettleser plukker selvsagt opp brillene og tar de på seg.</p>
+<div class="infoboks-container">
+  <img src="/images/2024-06-csp/briller_effekt.png" alt="Defacement XSS" width="700" style="margin: 10px 0;">
+  <div class="infoboks">
+    Motivasjonen bak digitalt hærverk kan f.eks være å ødelegge omdømme eller skape frykt. Det kan også brukes for å villede brukere i et 
+    sammensatt angrep.
+  </div>
+</div>
+<p>Tullebrillene endrer fullstendig hvordan <b>supersnill.no</b> ser ut, og det er <em>ikke</em> noe trivelig syn!</p>
+<div class="infoboks-container">
+  <img src="/images/2024-06-csp/briller_csp.png" width="500" alt="Briller CSP" style="flex: 0 0 500px; margin: 0;">
+  <div class="infoboks">
+  Headeren <b>Content-Security-Profile: style-src 'self' </b> tillater kun styling fra <b>supersnill.no</b>. 
+  Merk at dette blokkerer også <b>inline-styles</b>. 
+  <a href="https://scotthelme.co.uk/can-you-get-pwned-with-css" style="text-decoration: underline; font-weight: bold; color: var(--empereur)">Kan CSS være farlig altså? </a>
+  </div>
+</div>
+<p>Tante CSP har sett dette før! Ingen tullebriller her i gården! Lekeplassen skal se ut akkurat som arkitekten bestemte!</p>
+<p>Ok, nå er denne allegorien strukket langt nok. Som dere kan se så kan CSP være et nyttig verktøy.</p>
+<h2>Bare å sette en streng CSP da vel?</h2>
+<p>Så løsningen her er å sette på en CSP-header på nettsiden din, hvor vanskelig kan vel det være?</p>
+<img src="/images/2024-06-csp/regnbue.png" alt="Regnbue" width="300" style="margin: 10px 0;">
+<p>Det er dessverre ikke helt rett fram. Hvitelister av godkjente kilder i CSP-headeren er bedre enn ingenting,
+men <a href="https://www.youtube.com/watch?v=vrcKJkkTQng">ikke trygt nok</a>. Det er for lett å omgå for en angriper.</p>
+<h3>How so?</h3>
+<p>En angriper har mange måter å gjøre det på:</p>
+<ul>
+<li>Snike inn en ondsinnet JavaScript-fil i katalogen hvor nettsiden har JavaScript-filene sine
+<ul>
+<li>Da vil den ondsinnede filen fremstå som om den kommer fra din server</li>
+</ul>
+</li>
+<li>Kompromittere tredjepart som er hvitelistet i din CSP
+<ul>
+<li>Kanskje serverer du JavaScript via en CDN?</li>
+<li>Kanskje overvåker du brukerne dine med et eksternt analyseverktøy?</li>
+<li>Da kan en angriper snike inn ondsinnet kode enten i den eksterne JavaScripten eller legge til en fil på deres server</li>
+</ul>
+</li>
+</ul>
+<p>Gullstandarden for CSP-headere er i følge <a href="https://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html">OWASP sin CSP Cheat sheet</a>
+å bruke nonce-mekanismen og/eller hash av javascript-filene i CSP-headeren, men det er ikke så lett å gjennomføre
+i praksis.</p>
+<h3>Nonce</h3>
+<p>Man setter en nonce (dvs verdi som kun brukes én gang) i CSP-headeren, og kun script-tagger som har en korresponderende
+nonce-verdi vil bli lastet.</p>
+<pre><code>Content-Security-Policy: script-src 'nonce-tralala123'
+</code></pre>
+<pre><code class="language-html hljs language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">nonce</span>=<span class="hljs-string">"tralalal123"</span>&gt;</span><span class="language-javascript"><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">"Dette vil kjøre pga matchende nonce"</span>)</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="language-javascript"><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">"Dette blir blokkert"</span>)</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+</code></pre>
+<p>Så om en angriper klarer å lure inn en script-tag, så blir den blokkert fordi angriperen ikke klarer å gjette noncen.</p>
+<h3>Hash</h3>
+<p>Man kan også begrense hvilke JavaScript-filer som kan lastes ved å hashe innholdet og legge inn hashen i CSP-headeren:</p>
+<pre><code>Content-Security-Policy: script-src 'sha256-f5bb70ef3c3bc344ad28811ad60f8282fd8cd85a8e9290022adb5a9b27b1af23'
+</code></pre>
+<pre><code class="language-html hljs language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"fil-med-innhold-som-matcher-hashen-i-csp-header.js"</span> /&gt;</span>
+</code></pre>
+<p>Hvis en angriper klarer å lure inn noe JavaScript, så vil nettleseren ignorere det fordi det mangler en hash i CSP-headeren.</p>
+<h2>Is your CSP in order?</h2>
+<p>Lar du dine brukere sende sine nettlesere til nettsiden din for å leke uten en tante CSP?</p>
+<p>Ta en rask sjekk om dine egne nettsider er beskytta med en <em>Content Security Policy</em>-header. Det er bare å åpne
+utviklerverktøyet i nettleseren og kikke på respons-headere som ligger på det første HTML-dokumentet som siden din
+serverer.</p>
+<img src="/images/2024-06-csp/bully.png" alt="Bølle" width="200" style="margin: 0; ">
+<p>Samtidig kan du sjekke hva andre gjør, f.eks:</p>
+<ul>
+<li>banken din</li>
+<li>forsikringsselskapet ditt</li>
+<li>eposttjenesten din</li>
+<li>sosiale medier</li>
+<li>offentlige tjenester du bruker</li>
+</ul>
+<p>Noen setter ikke CSP-header i det hele tatt. Andre setter en CSP-header, men lener seg på lange hvitelister. Det er bare i unntakstilfeller
+at man følger OWASP-anbefalingene med bruk av nonce og/eller hash.</p>
+<h3>Why?</h3>
+<p>Det lurer jeg også på, men her er en liste med mulige forklaringer:</p>
+<ul>
+<li>Kanskje man vurderer at de andre tiltakene man har mot XSS er gode nok?</li>
+<li>For høy utviklingskostnad
+<ul>
+<li>Hvert eneste script må inkludere en nonce og/eller hash, noe som krever endringer av kode og bygg</li>
+</ul>
+</li>
+<li>Man bruker tredjepart-script pga brukeranalyse, reklame, sosiale medier etc
+<ul>
+<li>Hvis de endrer seg så må du oppdatere hash</li>
+<li>Hvis scriptene legger til nye script tags dynamisk så må disse også ha nonce. Dette kan løses med å legge til <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/script-src#strict-dynamic">strict-dynamic</a></li>
+</ul>
+</li>
+<li>Vanskelig å endre på gamle løsninger
+<ul>
+<li>Hvis man har en legacy-løsning som er utviklet over lang tid uten en CSP-header</li>
+<li>Å stramme til med en streng CSP-header vil føre til at slike løsninger slutter å virke uten større omstruktureringer</li>
+</ul>
+</li>
+</ul>
+<h2>Help, what now?</h2>
+<p>Vi lever i en skummel verden og internett er ikke noe unntak. Sikkerhet har aldri vært viktigere, spesielt om man er i en utsatt bransje.
+Cross-Site Scripting (XSS) er høyt oppe på <a href="https://owasp.org/www-project-top-ten/">OWASP Top 10</a>, og det bør man ta på alvor.</p>
+<p>Merk at Content Security Policy alene ikke er nok for å beskytte mot XSS-angrep, men heller en <a href="https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html">nyttig del av
+et større forsvar</a>.</p>
+<p>Eksempelvis så er det flere tiltak man bør gjøre i tillegg, her er noen få:</p>
+<ul>
+<li>vaske data fra utsiden</li>
+<li>sikkerhetsmonitorering</li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity">Integritetssjekk av ressurser</a>, spesielt nyttig om man bruker en CDN</li>
+</ul>
+<p><a href="https://react.dev/reference/react-dom/components/common#dangerously-setting-the-inner-html">React</a> og andre moderne
+rammeverk vasker dynamisk innhold for deg automatisk, men det er ikke alltid nok.
+F.eks om du trenger å støtte en rik-tekst-editor eller skal servere dynamisk HTML-innhold fra en database, så er det fort gjort å gå i XSS-fella.</p>
+<p>Kanskje du ikke trenger så mye JavaScript på siden din? Angrepsflaten blir mindre ved å bygge løsninger over en enklere
+lest. Der kan du sjekke <a href="https://www.kodemaker.no/blogg/2024-06-12-hold-ting-enkelt-med-htmx/">Robin sin bloggpost om HTMX</a>, som er i vinden om dagen.</p>
+<h3>Conclusion</h3>
+<p>Det er ikke trivielt å sette en trygg CSP-header. Det krever kunnskap og at man balanserer flere hensyn som f.eks vedlikeholdbarhet og utviklingshastighet.
+Et godt sted å begynne kan være <a href="https://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html">OWASP sin CSP Cheat sheet.</a></p>
+<p>CSP har også en rapporteringsfunksjon, som man kan bruke for å overvåke brudd på CSP-reglene man har satt.
+Merk at dette generer en god del støy, f.eks pga nettleser-plugins eller andre falske positiv, men det kan være et nyttig
+verktøy likevel.</p>
+<img src="/images/2024-06-csp/tante_csp.png" alt="Tante CSP" width="500" style="margin: 0; ">
+<p>Good luck!</p>
+<h3>Useful links</h3>
+<ul>
+<li><a href="https://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html">OWASP CSS Cheat sheet</a></li>
+<li><a href="https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html">OWASP XSS Cheat sheet</a></li>
+<li><a href="https://owasp.org/www-project-top-ten/">OWASP Top 10</a></li>
+<li><a href="https://csp-evaluator.withgoogle.com/">CSP evaluator, tool to check a CSP</a></li>
+<li><a href="https://youtu.be/vrcKJkkTQng?si=NT-doCoUme3BN_rN">Presentation from Google on CSP</a></li>
+</ul>
+
+    </div>
+  </main>
+  <footer>
+        <a href="https://github.com/odinodin">Github</a>
+        <a href="https://www.kodemaker.no">Kodemaker</a>
+        <a href="https://bsky.app/profile/odinodin.bsky.social">BlueSky</a>
+        <a href="https://www.linkedin.com/in/odinholestandal/">Linkedin</a>
+</footer>
+  <div>
+
+</div></div></body></html>

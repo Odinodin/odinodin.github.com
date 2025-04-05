@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <link href="/main.css" rel="stylesheet" type="text/css">
+  <link href="/highlight.css" rel="stylesheet" type="text/css">
+  <title>Worth Knowing About Set in JavaScript</title>
+</head>
+
+<body>
+<div class="page page-blog">
+  <header>
+  <a href="/"><h1 class="logo-text">ODINODIN</h1></a>
+  <div class="menu">
+    <a href="/">Posts</a>
+    <a href="/about">About</a>
+  </div>
+</header>
+  <main>
+    <h1>Worth Knowing About Set in JavaScript</h1>
+    <div class="published-container">
+      <h3 class="color-primary">2019-10-09</h3>
+      <div>
+        <a href="/tags/frontend"><div class="badge">frontend</div></a>
+      </div>
+    </div>
+    <div class="blog-content">
+    <svg viewbox="0 0 100 20" xmlns="http://www.w3.org/2000/svg">
+  <g fill-opacity="0.2" stroke-width="0.5">
+    <circle cx="35" cy="10" r="6" fill="gold" stroke="goldenrod"></circle>
+    <circle cx="45" cy="10" r="8" fill="red" stroke="darkred"></circle>
+    <circle cx="55" cy="10" r="6" fill="green" stroke="darkgreen"></circle>
+  </g>
+</svg>
+<p>A <a href="https://en.wikipedia.org/wiki/Set_%28mathematics%29">Set</a> is a fundamental data structure that is useful in many situations.
+It is simply a collection of unique elements, for some definition of uniqueness (which we'll come back to). In <a href="https://www.ecma-international.org/ecma-262/6.0/#sec-set-objects">ES2015</a>, JavaScript gained support for Sets, and in line with the language's tradition, the implementation has some sharp edges worth knowing about.</p>
+<h2>API</h2>
+<p>Here's how to use a Set in JavaScript.</p>
+<pre><code class="language-javascript hljs"><span class="hljs-comment">// Create</span>
+<span class="hljs-keyword">const</span> animals = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Set</span>([<span class="hljs-string">'cat'</span>, <span class="hljs-string">'dog'</span>]) 
+
+<span class="hljs-comment">// Add an element</span>
+animals.<span class="hljs-title function_">add</span>(<span class="hljs-string">'giraffe'</span>) 
+<span class="hljs-comment">// Result: Set(3) {'cat', 'dog', 'giraffe'}</span>
+
+<span class="hljs-comment">// Remove an element</span>
+animals.<span class="hljs-title function_">delete</span>(<span class="hljs-string">'cat'</span>)
+<span class="hljs-comment">// Result: true</span>
+
+<span class="hljs-comment">// Size</span>
+animals.<span class="hljs-property">length</span>
+<span class="hljs-comment">// Result: undefined</span>
+
+animals.<span class="hljs-property">size</span>
+<span class="hljs-comment">// Result: 2</span>
+
+<span class="hljs-comment">// Check membership</span>
+animals.<span class="hljs-title function_">has</span>(<span class="hljs-string">'dog'</span>)
+<span class="hljs-comment">// Result: true</span>
+</code></pre>
+<p>Set keeps track of insertion order, so when you iterate, you get the content back in the same order you put it in.</p>
+<pre><code class="language-javascript hljs"><span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> d <span class="hljs-keyword">of</span> animals) <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(d);
+<span class="hljs-comment">// Logs 'dog' then 'giraffe'</span>
+</code></pre>
+<h2>Equality, in JavaScript's Eyes</h2>
+<p>No surprises so far. A Set supports arbitrary types, so we can put anything in a Set. Numbers, strings, objects, lists, and even other Sets. This looks promising!</p>
+<pre><code class="language-javascript hljs"><span class="hljs-keyword">const</span> fruit = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Set</span>()
+
+<span class="hljs-keyword">const</span> apple = {<span class="hljs-attr">name</span>: <span class="hljs-string">'apple'</span>}
+
+fruit.<span class="hljs-title function_">add</span>(apple)
+<span class="hljs-comment">// Result: Set(1)</span>
+
+fruit.<span class="hljs-title function_">add</span>(apple)
+<span class="hljs-comment">// Result: Set(1)</span>
+</code></pre>
+<p>Then we can check if there are apples in the fruit</p>
+<pre><code class="language-javascript hljs">fruit.<span class="hljs-title function_">has</span>({<span class="hljs-attr">name</span>: <span class="hljs-string">'apple'</span>})
+<span class="hljs-comment">// Result: false</span>
+</code></pre>
+<p>Doh! But unfortunately, exactly as expected. It's consistent with the concept of equality in JavaScript. The comparison mechanism is about checking references, not values.</p>
+<p>This means:</p>
+<pre><code class="language-javascript hljs"><span class="hljs-comment">// We use the reference to apple</span>
+fruit.<span class="hljs-title function_">has</span>(apple)
+<span class="hljs-comment">// Result: true</span>
+
+<span class="hljs-comment">// Two different objects with the same values</span>
+<span class="hljs-keyword">const</span> elements = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Set</span>([{<span class="hljs-attr">name</span>: <span class="hljs-string">'Thorium'</span>}, {<span class="hljs-attr">name</span>: <span class="hljs-string">'Thorium'</span>} ])
+<span class="hljs-comment">// Result: Set(2)</span>
+</code></pre>
+<p>Working with values instead of references is more intuitive and leaves less room for errors. If you want value semantics, you need to resort to libraries like Immutable.js or languages like <a href="https://www.kodemaker.no/clojurescript">ClojureScript</a>.</p>
+<h2>Functional Programming</h2>
+<p>We all love <a href="https://www.kodemaker.no/16-minutter-om-pure-functions/">functional programming</a>. Arrays have supported map, filter, and reduce for a long time. The use of Set also fits nicely into that paradigm.</p>
+<pre><code class="language-javascript hljs">elements.<span class="hljs-title function_">map</span>(<span class="hljs-function"><span class="hljs-params">f</span> =&gt;</span> f.<span class="hljs-property">name</span>)
+<span class="hljs-comment">// Error: elements.map is not a function </span>
+</code></pre>
+<p>Surprisingly, Set doesn't support map, filter, or reduce. There is, however, <a href="https://github.com/tc39/proposal-collection-methods">a proposal</a> to add it.</p>
+<p>In the meantime, you need to convert to an Array first.</p>
+<pre><code class="language-javascript hljs">[...elements].<span class="hljs-title function_">map</span>(<span class="hljs-function"><span class="hljs-params">f</span> =&gt;</span> f.<span class="hljs-property">name</span>) 
+<span class="hljs-comment">// Result: ['Thorium', 'Thorium']</span>
+</code></pre>
+<h2>Set, not F-Venn-dly</h2>
+<p>If there's one thing a Set can do better than any other data structure, it's performing mathematical Set operations like union, intersection, and disjunctions. Hold on tight.</p>
+<svg viewbox="0 0 100 20" xmlns="http://www.w3.org/2000/svg">
+  <g fill-opacity="0.2" stroke-width="0.5">
+    <circle cx="45" cy="10" r="8" fill="red" stroke="darkred"></circle>
+    <circle cx="55" cy="10" r="8" fill="green" stroke="darkgreen"></circle>
+  </g>
+</svg>
+<pre><code class="language-javascript hljs"><span class="hljs-keyword">const</span> presidents = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Set</span>([<span class="hljs-string">'Abraham'</span>, <span class="hljs-string">'Bill'</span>, <span class="hljs-string">'Donald'</span>])
+<span class="hljs-keyword">const</span> cartoonCharacters = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Set</span>([<span class="hljs-string">'Donald'</span>, <span class="hljs-string">'Langbein'</span>, <span class="hljs-string">'Svampebob'</span>])
+
+<span class="hljs-comment">// Which presidents are also cartoon characters?</span>
+presidents.<span class="hljs-title function_">intersection</span>(cartoonCharacters)
+<span class="hljs-comment">// Error: presidents.intersection is not a function</span>
+</code></pre>
+<p>🤯🤯🤯🤯🤯</p>
+<p>This was a big surprise. There was probably a good reason it wasn't supported out of the box. Once again, there is <a href="https://github.com/tc39/proposal-set-methods">a proposal</a> to add Set functions to the language. So at least we have something to look forward to.</p>
+<p>While we wait, we can create our own Set functions, as outlined in this <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set#Implementing_basic_set_operations">Mozilla article</a></p>
+<pre><code class="language-javascript hljs"><span class="hljs-keyword">function</span> <span class="hljs-title function_">intersection</span>(<span class="hljs-params">setA, setB</span>) {
+    <span class="hljs-keyword">var</span> _intersection = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Set</span>();
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> elem <span class="hljs-keyword">of</span> setB) {
+        <span class="hljs-keyword">if</span> (setA.<span class="hljs-title function_">has</span>(elem)) {
+            _intersection.<span class="hljs-title function_">add</span>(elem);
+        }
+    }
+    <span class="hljs-keyword">return</span> _intersection;
+}
+</code></pre>
+<h2>Set is Data, Right?</h2>
+<p>Let's try to share information about a Set with others</p>
+<pre><code class="language-javascript hljs"><span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">stringify</span>({<span class="hljs-attr">uniqueNames</span>: <span class="hljs-keyword">new</span> <span class="hljs-title class_">Set</span>([<span class="hljs-string">'monkey'</span>, <span class="hljs-string">'cat'</span>])})
+<span class="hljs-comment">// Result: "{"uniqueNames":{}}"</span>
+</code></pre>
+<p>That's not so strange, since the JSON standard is based on a subset of JavaScript and <a href="https://github.com/shaunxcode/jsedn">is not extensible</a>.</p>
+<p>So if you want to share Sets, you need to come up with your <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#The_replacer_parameter">own encoding</a> or convert them to an Array.</p>
+<p>If we could dream of a better world, it would be nice if Set got its own syntax literal.</p>
+<pre><code class="language-javascript hljs"><span class="hljs-keyword">const</span> minArray = [<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>]
+<span class="hljs-keyword">const</span> mittSet = #{<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>} <span class="hljs-comment">// &lt;-- This is not valid JavaScript syntax, just a wish!</span>
+</code></pre>
+<h2>When is it Appropriate to Use Set?</h2>
+<p>Despite a somewhat deficient implementation, Set is useful to have in your toolkit.</p>
+<p>For data types that are actually compared based on values, such as numbers and strings, you can easily ensure that a collection contains only unique values.</p>
+<pre><code class="language-javascript hljs"><span class="hljs-keyword">const</span> uniqueNames = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Set</span>([])
+uniqueNames.<span class="hljs-title function_">add</span>(<span class="hljs-string">'Janne'</span>)
+uniqueNames.<span class="hljs-title function_">add</span>(<span class="hljs-string">'Janne'</span>)
+</code></pre>
+<p>With an array or an object, you would have to work a bit harder for the same effect.</p>
+<p>Another example is where you have a collection of objects and want to keep track of a subset of them.</p>
+<pre><code class="language-javascript hljs"><span class="hljs-keyword">const</span> animals = [{<span class="hljs-attr">id</span>: <span class="hljs-string">'1'</span>, <span class="hljs-attr">name</span>: <span class="hljs-string">'Cat'</span>, <span class="hljs-attr">age</span>: <span class="hljs-number">4</span>}, 
+             {<span class="hljs-attr">id</span>: <span class="hljs-string">'2'</span>, <span class="hljs-attr">name</span>: <span class="hljs-string">'Dog'</span>, <span class="hljs-attr">age</span>: <span class="hljs-number">5</span>},
+             {<span class="hljs-attr">id</span>: <span class="hljs-string">'3'</span>, <span class="hljs-attr">name</span>: <span class="hljs-string">'Horse'</span>, <span class="hljs-attr">age</span>: <span class="hljs-number">8</span>}]
+
+<span class="hljs-keyword">const</span> selected = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Set</span>([<span class="hljs-string">'1'</span>, <span class="hljs-string">'2'</span>])
+</code></pre>
+<p>Beyond that, we'll have to cross our fingers that Set support gets better in the future.</p>
+
+    </div>
+  </main>
+  <footer>
+        <a href="https://github.com/odinodin">Github</a>
+        <a href="https://www.kodemaker.no">Kodemaker</a>
+        <a href="https://bsky.app/profile/odinodin.bsky.social">BlueSky</a>
+        <a href="https://www.linkedin.com/in/odinholestandal/">Linkedin</a>
+</footer>
+  <div>
+
+</div></div></body></html>

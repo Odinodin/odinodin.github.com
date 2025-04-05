@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <link href="/main.css" rel="stylesheet" type="text/css">
+  <link href="/highlight.css" rel="stylesheet" type="text/css">
+  <title>Test data tips</title>
+</head>
+
+<body>
+<div class="page page-blog">
+  <header>
+  <a href="/"><h1 class="logo-text">ODINODIN</h1></a>
+  <div class="menu">
+    <a href="/">Posts</a>
+    <a href="/about">About</a>
+  </div>
+</header>
+  <main>
+    <h1>Test data tips</h1>
+    <div class="published-container">
+      <h3 class="color-primary">2022-08-10</h3>
+      <div>
+        <a href="/tags/testing"><div class="badge">testing</div></a>
+        <a href="/tags/typescript"><div class="badge">typescript</div></a>
+      </div>
+    </div>
+    <div class="blog-content">
+    <p>Regardless of which language you use, you need test data when writing tests. Here are some tips on how to make it easier for yourself, with examples in TypeScript.</p>
+<h2>What's the problem with test data?</h2>
+<p>Writing good tests isn't easy. A critical aspect is being able to understand what the test is about. This is important when the test fails and you're wondering why.</p>
+<p>A major source of confusion is the dataset required to run the test code. How do you know what's important for the test, and what's just filler to satisfy the interface requirements?</p>
+<h2>An example</h2>
+<p>Let's say we have a <code>user.ts</code> with the following code that we want to test:</p>
+<pre><code class="language-typescript hljs"><span class="hljs-keyword">const</span> <span class="hljs-attr">usersByEmail</span>: <span class="hljs-title class_">Record</span>&lt;<span class="hljs-built_in">string</span>, <span class="hljs-title class_">IUser</span>&gt; = {};
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> <span class="hljs-title function_">addUser</span> = (<span class="hljs-params"><span class="hljs-attr">user</span>: <span class="hljs-title class_">IUser</span></span>) =&gt; {
+  <span class="hljs-keyword">if</span> (usersByEmail[user.<span class="hljs-property">email</span>]) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Error</span>(<span class="hljs-string">"Email must be unique"</span>)
+  usersByEmail[user.<span class="hljs-property">email</span>] = user;
+}
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> <span class="hljs-title function_">getUserByEmail</span> = (<span class="hljs-params"><span class="hljs-attr">email</span>: <span class="hljs-built_in">string</span></span>) =&gt; {
+  <span class="hljs-keyword">return</span> usersByEmail[email];
+}
+</code></pre>
+<p>An <code>IUser</code> has an <code>IAddress</code> and a list of <code>IPermission</code>.</p>
+<p>We write a test to check that <code>addUser</code> updates <code>usersByEmail</code>.</p>
+<pre><code class="language-typescript hljs"><span class="hljs-title function_">test</span>(<span class="hljs-string">"can add a user"</span>, <span class="hljs-function">() =&gt;</span> {
+  <span class="hljs-comment">// Fill out everything manually, hard to see what's essential for the test</span>
+  <span class="hljs-keyword">const</span> <span class="hljs-attr">newUser</span>: <span class="hljs-title class_">IUser</span> = {
+    <span class="hljs-attr">email</span>: <span class="hljs-string">"test@example.com"</span>,
+    <span class="hljs-attr">name</span>: <span class="hljs-string">"Testing"</span>,
+    <span class="hljs-attr">age</span>: <span class="hljs-number">10</span>,
+    <span class="hljs-attr">address</span>: { <span class="hljs-attr">country</span>: <span class="hljs-string">"no"</span>, <span class="hljs-attr">zip</span>: <span class="hljs-number">123</span>, <span class="hljs-attr">street</span>: <span class="hljs-string">"Main street 45"</span> },
+    <span class="hljs-attr">created</span>: <span class="hljs-keyword">new</span> <span class="hljs-title class_">Date</span>(),
+    <span class="hljs-attr">permissions</span>: [{ <span class="hljs-attr">id</span>: <span class="hljs-string">"somePermission"</span>, <span class="hljs-attr">description</span>: <span class="hljs-string">"Don't really care in this test"</span> }]
+  };
+  <span class="hljs-title function_">addUser</span>(newUser)
+
+  <span class="hljs-keyword">const</span> result = <span class="hljs-title function_">getUserByEmail</span>(<span class="hljs-string">"test@example.com"</span>);
+  <span class="hljs-title function_">expect</span>(newUser).<span class="hljs-title function_">toEqual</span>(result);
+})
+</code></pre>
+<p>The test creates a new user and verifies that we can retrieve the same user again. The essential property of the user is the email. The rest is just noise. Unfortunately, we need to include them to satisfy the type checker.</p>
+<h2>A hack</h2>
+<p>We can try a trick to fool the compiler:</p>
+<pre><code class="language-typescript hljs"><span class="hljs-title function_">test</span>(<span class="hljs-string">"a trick"</span>, <span class="hljs-function">() =&gt;</span> {
+  <span class="hljs-comment">// Cast to IUser </span>
+  <span class="hljs-keyword">const</span> newUser = { <span class="hljs-attr">email</span>: <span class="hljs-string">"fake@example.com"</span> } <span class="hljs-keyword">as</span> <span class="hljs-title class_">IUser</span>;
+  <span class="hljs-title function_">addUser</span>(newUser);
+
+  <span class="hljs-keyword">const</span> result = <span class="hljs-title function_">getUserByEmail</span>(<span class="hljs-string">"fake@example.com"</span>);
+  <span class="hljs-title function_">expect</span>(newUser).<span class="hljs-title function_">toEqual</span>(result);
+})
+</code></pre>
+<p>This became more readable. Here it's clear that only the user's email is important. However, casting can quickly lead to us fooling ourselves. When we're already using TypeScript and have taken the trouble to define types, we want to get as much as possible out of that investment.</p>
+<h2>What can we do?</h2>
+<p>We create some helper functions to create users. <code>user</code> returns a valid <code>IUser</code>, with default values for each field. The function takes a <code>Partial&lt;IUser&gt;</code> as an argument, which is spread on the return value. This allows us to override whatever we want from our tests.</p>
+<pre><code class="language-typescript hljs"><span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> permission = (<span class="hljs-attr">overrides</span>: <span class="hljs-title class_">Partial</span>&lt;<span class="hljs-title class_">IPermission</span>&gt;): <span class="hljs-function"><span class="hljs-params">IPermission</span> =&gt;</span> {
+  <span class="hljs-keyword">return</span> {
+    <span class="hljs-attr">id</span>: <span class="hljs-string">"defaultPermission"</span>,
+    <span class="hljs-attr">description</span>: <span class="hljs-string">"A default permission"</span>,
+    ...overrides
+  }
+}
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> address = (<span class="hljs-attr">overrides</span>: <span class="hljs-title class_">Partial</span>&lt;<span class="hljs-title class_">IAddress</span>&gt;): <span class="hljs-function"><span class="hljs-params">IAddress</span> =&gt;</span> {
+  <span class="hljs-keyword">return</span> {
+    <span class="hljs-attr">zip</span>: <span class="hljs-number">123</span>,
+    <span class="hljs-attr">street</span>: <span class="hljs-string">"Default street 1"</span>,
+    <span class="hljs-attr">country</span>: <span class="hljs-string">"no"</span>,
+    ...overrides
+  }
+}
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> user = (<span class="hljs-attr">overrides</span>: <span class="hljs-title class_">Partial</span>&lt;<span class="hljs-title class_">IUser</span>&gt;): <span class="hljs-function"><span class="hljs-params">IUser</span> =&gt;</span> {
+  <span class="hljs-keyword">return</span> {
+    <span class="hljs-attr">name</span>: <span class="hljs-string">"Default name"</span>,
+    <span class="hljs-attr">age</span>: <span class="hljs-number">1</span>,
+    <span class="hljs-attr">address</span>: <span class="hljs-title function_">address</span>({}),
+    <span class="hljs-attr">created</span>: <span class="hljs-keyword">new</span> <span class="hljs-title class_">Date</span>(<span class="hljs-number">2020</span>, <span class="hljs-number">10</span>, <span class="hljs-number">8</span>),
+    <span class="hljs-attr">email</span>: <span class="hljs-string">"default@default.com"</span>,
+    <span class="hljs-attr">permissions</span>: [<span class="hljs-title function_">permission</span>({})],
+    ...overrides
+  }
+}
+</code></pre>
+<p>If we want to create a user with an address in Sweden, we can do it like this:</p>
+<pre><code class="language-typescript hljs"><span class="hljs-title function_">user</span>({ <span class="hljs-attr">email</span>: <span class="hljs-string">"sven@sverige.se"</span>, <span class="hljs-attr">address</span>: <span class="hljs-title function_">address</span>({ <span class="hljs-attr">country</span>: <span class="hljs-string">"se"</span> }) })
+</code></pre>
+<p>We can now write our test like this:</p>
+<pre><code class="language-typescript hljs"><span class="hljs-title function_">test</span>(<span class="hljs-string">"can create user with a helper function"</span>, <span class="hljs-function">() =&gt;</span> {
+  <span class="hljs-keyword">const</span> newUser = <span class="hljs-title function_">user</span>({ <span class="hljs-attr">email</span>: <span class="hljs-string">"help@example.com"</span> })
+  <span class="hljs-title function_">addUser</span>(newUser);
+
+  <span class="hljs-keyword">const</span> result = <span class="hljs-title function_">getUserByEmail</span>(<span class="hljs-string">"help@example.com"</span>);
+  <span class="hljs-title function_">expect</span>(newUser).<span class="hljs-title function_">toEqual</span>(result);
+})
+</code></pre>
+<p>Readable without tricks! The more complicated your domain is, the more useful these composable helper functions become.
+A bonus is that they make it easier to develop the code further. When it changes, you can adapt the helper functions in one place, instead of having to update all the tests when a user gets a new field.</p>
+<h2>Named variables</h2>
+<p>In addition to the helper functions above, you can also create some named test data variables. These can be variants of test data that are semantically meaningful. You can use the helper functions to define these. For example, it could be an <code>adminUser</code> or <code>addressInTimezoneWithDaylightSaving</code>.</p>
+<p>In the example below, we use two named <code>permissions</code>.</p>
+<pre><code class="language-typescript hljs"><span class="hljs-title function_">test</span>(<span class="hljs-string">"can use named test data"</span>, <span class="hljs-function">() =&gt;</span> {
+  <span class="hljs-keyword">const</span> newUser = <span class="hljs-title function_">user</span>({ <span class="hljs-attr">email</span>: <span class="hljs-string">"bad@example.com"</span>, <span class="hljs-attr">permissions</span>: [permissionToRead, permissionToWrite] })
+  <span class="hljs-title function_">addUser</span>(newUser);
+
+  <span class="hljs-title function_">banUser</span>(<span class="hljs-string">"bad@example.com"</span>);
+
+  <span class="hljs-keyword">const</span> result = <span class="hljs-title function_">getUserByEmail</span>(<span class="hljs-string">"bad@example.com"</span>);
+  <span class="hljs-title function_">expect</span>(result.<span class="hljs-property">permissions</span>).<span class="hljs-title function_">toEqual</span>([])
+})
+</code></pre>
+<h2>A warning</h2>
+<p>A potential pitfall with shared test data functions is that they can create hidden dependencies between tests. You need to think carefully when defining default values. It's not necessarily easy to understand what's okay to change without breaking some tests. In the worst case, a test data change can cause tests to no longer verify what you wanted, but still run green.</p>
+<p>For those who are extra interested, the source code for the examples above is available <a href="https://github.com/Odinodin/example-testdata-ts">here</a></p>
+
+    </div>
+  </main>
+  <footer>
+        <a href="https://github.com/odinodin">Github</a>
+        <a href="https://www.kodemaker.no">Kodemaker</a>
+        <a href="https://bsky.app/profile/odinodin.bsky.social">BlueSky</a>
+        <a href="https://www.linkedin.com/in/odinholestandal/">Linkedin</a>
+</footer>
+  <div>
+
+</div></div></body></html>
