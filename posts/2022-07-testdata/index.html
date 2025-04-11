@@ -117,7 +117,8 @@
 })
 </code></pre>
 <p>Readable without tricks! The more complicated your domain is, the more useful these composable helper functions become.
-A bonus is that they make it easier to develop the code further. When it changes, you can adapt the helper functions in one place, instead of having to update all the tests when a user gets a new field.</p>
+A bonus is that they make it easier to develop the code further. When it changes, you can adapt the helper functions
+in one place, instead of having to update all the tests when a user gets a new field.</p>
 <h2>Named variables</h2>
 <p>In addition to the helper functions above, you can also create some named test data variables. These can be variants of test data that are semantically meaningful. You can use the helper functions to define these. For example, it could be an <code>adminUser</code> or <code>addressInTimezoneWithDaylightSaving</code>.</p>
 <p>In the example below, we use two named <code>permissions</code>.</p>
@@ -132,7 +133,10 @@ A bonus is that they make it easier to develop the code further. When it changes
 })
 </code></pre>
 <h2>A warning</h2>
-<p>A potential pitfall with shared test data functions is that they can create hidden dependencies between tests. You need to think carefully when defining default values. It's not necessarily easy to understand what's okay to change without breaking some tests. In the worst case, a test data change can cause tests to no longer verify what you wanted, but still run green.</p>
+<p>A potential pitfall with shared test data functions is that they can create hidden dependencies between tests.
+You need to think carefully when defining default values. It's not necessarily easy to understand what's okay to change
+without breaking some tests. In the worst case, a test data change can cause tests to no longer verify what you wanted,
+but still run green.</p>
 <p>For those who are extra interested, the source code for the examples above is available <a href="https://github.com/Odinodin/example-testdata-ts">here</a></p>
 
     </div>

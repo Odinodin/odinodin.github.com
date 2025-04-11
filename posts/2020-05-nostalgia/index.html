@@ -477,12 +477,10 @@ of the container we draw it in.</p>
                     <span class="hljs-symbol">:x-spacing</span> <span class="hljs-number">26</span>
                     <span class="hljs-symbol">:speed</span> (/ <span class="hljs-number">1</span> <span class="hljs-number">8</span>)})
 </code></pre>
-<p><code>:letters</code> Contains the letters to draw.</p>
+<p><code>:letters</code> Contains which letters to draw.</p>
 <p><code>:tick</code>
 This represents where we are in time and is used to place the letters.
 For every round in our loop this is updated with <code>:speed</code>. That is what makes the elements move.</p>
-<p><code>:angle-speed</code> bestemmer hvor raskt vinkelen på kurven endrer seg. Det er
-en forenklet måte å bestemme perioden i bølgen på.</p>
 <p><code>:angle-speed</code> determine how quickly the angle of the curve changes. That is a simplified way of controlling
 the period of the wave.</p>
 <p><code>:x-speed</code> affects how fast the letters move along the x-axis. It is independent of <code>:angle-speed</code>. If you set it to 0,

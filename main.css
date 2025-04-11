@@ -273,12 +273,11 @@ main {
         color: var(--color-primary);
         padding: 16px 0;
 
-        display:flex;
+        display: flex;
         align-items: center;
         gap: 10px;
     }
 }
-
 
 
 /* Containers */
@@ -321,7 +320,6 @@ main {
     }
 }
 
-
 .badge {
     font-size: var(--14px);
     display: inline-block;
@@ -347,6 +345,4 @@ main {
 figure {
     display: inline-block;
     width: min-content;
-
-
 }
