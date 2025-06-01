@@ -24,20 +24,22 @@
       </div>
     </div>
     <div class="blog-content">
-    <p>Trenger du å lage et kommandolinjeverktøy, men er lei av grisete bash-script som er umulige å lese? Kanskje det går raskere å skrive det med et dynamisk språk som Python, men hva med å prøve et sterkt typet språk som Rust?</p>
-<p>For en stund tilbake så kom jeg over <a href="https://github.com/sts10/rust-command-line-utilities">denne listen</a> med
-kommandolinjeverktøy skrevet i Rust. Det skjer en masse innovasjon på denne fronten og det er tydelig
-at <a href="https://www.rust-lang.org/">Rust</a> er et språk som mange foretrekker å lage slike verktøy med.</p>
-<p>Det er kjekt å lære seg nye ting; hvor vanskelig kan det egentlig være å lære seg Rust?</p>
+    <p>Do you need to make a command line tool, but tired of messy bash scripts that are impossible to read?
+Maybe it's faster to write it with a dynamic language like Python, but what about trying a strongly typed language
+like Rust?</p>
+<p>A while back I came across  <a href="https://github.com/sts10/rust-command-line-utilities">this list</a> of command line tools written in Rust.</p>
+<p>There is a lot of innovation on this front and it's obvious that
+<a href="https://www.rust-lang.org/">Rust</a> is a language that many prefer to build these kinds of tools with.</p>
+<p>It's fun to learn new things, how hard can it be to learn Rust?</p>
 <p><img src="/images/2023-07-rust/rust-crab.png" alt="Rust krabbe"></p>
 <h2>What are we making?</h2>
-<p>For å ikke bite over for mye, så trenger vi et overkommelig prosjekt som ikke tar for tid å fullføre.
-Jeg sjekker ofte strømprisene i Tibber-appen for å vite når det er best å sette på f.eks vaskemaskinen.
-Når jeg sitter med datamaskinen så har jeg alltid terminalen oppe. Det er mye lettere å fyre avgårde en
-terminalkommando enn å løfte opp telefonen og finne frem Tibber appen.</p>
-<p>Det ferdige produktet ser slik ut:</p>
-<pre><code>$ energipris --idag
-  I dag (Pris nå 0.888)
+<p>To not bite over too much, we need a rightly scoped project that will not take too long to complete.</p>
+<p>I often check the price of power in my Tibber-app to know when it's best to start the dish washer.</p>
+<p>When I'm at the computer, I always have the terminal up. It's a lot easier to fire away a terminal command than
+lifting up the phone and finding the Tibber app.</p>
+<p>The finished product looks like this:</p>
+<pre><code>$ energipris --today
+  Today (Price now 0.888)
 
  0.89 ┤                                 ╭────────────╮                        ╭───────╮
  0.87 ┤                            ╭────╯            ╰╮              ╭────────╯       ╰──╮
@@ -53,50 +55,41 @@ terminalkommando enn å løfte opp telefonen og finne frem Tibber appen.</p>
        ‾|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|
        00:00                   06:00                   12:00                   18:00               24:00
 </code></pre>
-<p>Det betyr at vi må gjøre følgende:</p>
+<p>That means we have to do the following:</p>
 <ul>
-<li>Parse argumenter til programmet</li>
-<li>Lese inn et personlig Tibber API token</li>
-<li>Hente priser fra Tibber APIet med tokenet</li>
-<li>Tegne en graf med priser</li>
-</ul>
-<h3>Oppdatering:</h3>
-<p>Vi har nå flere bloggposter som implementerer det samme konseptet:</p>
-<ul>
-<li><a href="/blogg/2023-08-03-tibber-cli-golang/">Nils viser hvordan man kan bruke Go</a></li>
-<li><a href="/blogg/2023-08-30-kotlin-notebook/">Frode visualiserer det med Kotlin Notebook</a></li>
+<li>Parse arguments to the progam</li>
+<li>Read a personal Tibber API Token</li>
+<li>Fetch prices from the Tibber API using the token</li>
+<li>Draw a graph of the prices</li>
 </ul>
 <h2>How to get started?</h2>
-<p>Det hele starter med å <a href="https://www.rust-lang.org/learn/get-started">installere verktøyene</a> du trenger for å
-kompilere og kjøre Rust-programmer.</p>
-<p>Merk at Rust har en interessant måte å håndtere minne på som det kan ta litt tid å sette seg inn i. Det har
-<a href="https://www.kodemaker.no/blogg/2022-12-08-rust-minne-modell/">André</a> skrevet om tidligere.</p>
-<p>For å starte et nytt prosjekt så kan du generere et utgangspunkt med følgende kommando:</p>
+<p>Everything starts by <a href="https://www.rust-lang.org/learn/get-started">installing the tools</a> you need to compile and run Rust program.</p>
+<p>Note that Rust handles memory in a novel way that can take some getting used to.</p>
+<p>To start a new project you can generate a template with the following command:</p>
 <pre><code>cargo new energipris
 </code></pre>
-<p>For å kjøre programmet gjør du:</p>
+<p>To run this program:</p>
 <pre><code>cargo run
 </code></pre>
-<p>Da har vi det grunnleggende på plass.</p>
+<p>Now we have the foundation in place.</p>
 <h2>Dependencies</h2>
-<p>Rust er bevisst designet med et tynt standardbibliotek. Den designfilosofien har jeg sansen for. I praksis så må koden i
-kjernen
-leve evig.</p>
-<p>For å gjøre det vi ønsker så drar vi inn følgende avhengigheter, eller "crates" som de er kjent som i Rust-universet:</p>
+<p>Rust is designet with a thin standard library. That is a design philosphy I can like. The code in the core has to live
+forever, and thus small size means less likely to need to change.</p>
+<p>To achieve our goals, we pull in the following dependencies, or "crates" as they are known as in the Rust universe:</p>
 <ul>
 <li>tokio
 <ul>
-<li>En runtime som støtter asynkrone kall</li>
+<li>a runtime with async support</li>
 </ul>
 </li>
 <li>clap
 <ul>
-<li>Parser for kommandolinjeargumenter</li>
+<li>Parser for command line arguments</li>
 </ul>
 </li>
 <li>reqwest
 <ul>
-<li>HTTP-klient for å snakke med Tibber APIet</li>
+<li>HTTP-client to be able to talk to the Tibber API</li>
 </ul>
 </li>
 <li>serde
@@ -106,21 +99,21 @@ leve evig.</p>
 </li>
 <li>rasciigraph
 <ul>
-<li>For å visualisere prisene over tid</li>
+<li>To visualize the prices over time</li>
 </ul>
 </li>
 </ul>
-<h2>Det begynner med main()</h2>
-<p>Programmet starter med en main-funksjon.</p>
+<h2>It starts with main()</h2>
+<p>The program starts with a main function.</p>
 <pre><code class="language-rust hljs"><span class="hljs-meta">#[tokio::main]</span>
 <span class="hljs-keyword">async</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() { 
   <span class="hljs-comment">// ...</span>
 }
 </code></pre>
-<p>Allerede nå trenger vi litt forklaring. Main er annotert med en <code>tokio</code>-makro som legger på støtte for asynkrone kall.
-<a href="https://doc.rust-lang.org/book/ch19-06-macros.html">Makroer</a> i Rust genererer kode som ekspanderes når programmet
-kompileres.</p>
-<p>Alternativt så kan du skrive følgende for å oppnå det samme som makroen:</p>
+<p>Hold on a minute, this needs some explaining. Main is annotated with a <code>tokio</code> macro which adds support for
+asynchronous calls.<br>
+<a href="https://doc.rust-lang.org/book/ch19-06-macros.html">Makroer</a> in Rust generate code which expands when the program is compiled.</p>
+<p>Alernatively you can write the following to achieve the same as the macro:</p>
 <pre><code class="language-rust hljs"><span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() {
   tokio::runtime::Builder::<span class="hljs-title function_ invoke__">new_multi_thread</span>()
     .<span class="hljs-title function_ invoke__">enable_all</span>()
@@ -131,11 +124,11 @@ kompileres.</p>
     })
 }
 </code></pre>
-<p>Makroer er et utrolig kraftig verktøy med mange skarpe kanter. Det første jeg tenker er hva gjør egentlig denne makroen?
-Det er fint når det funker, men så snart noe ikke gjør det, så er det ikke så lett å vite hvor man skal begynne å lete.</p>
-<h2>Argumenter</h2>
-<p>Vi bruker <code>clap</code>-craten til å parse argumenter fra kommandolinjen. Her kan vi annotere en struct med en makro på
-følgende vis:</p>
+<p>Macros are incredibly powerful tools with a lot of sharp edges. The first I think about is what does this macro really
+do? It's nice when it works, but as soon as it doesn't, it's not always easy to know where to start debugging.</p>
+<h2>Arguments</h2>
+<p>We use the <code>clap</code>-crate to parse arguments from the command line. Here we can annotate a struct with a macro in the
+following way:</p>
 <pre><code class="language-rust hljs"><span class="hljs-meta">#[derive(Parser)]</span>
 <span class="hljs-meta">#[command(name = <span class="hljs-string">"energipriser"</span>)]</span>
 <span class="hljs-meta">#[command(author = <span class="hljs-string">"Odin Standal &lt;odin@odinodin.com&gt;"</span>)]</span>
@@ -149,18 +142,18 @@ følgende vis:</p>
 }
 </code></pre>
 <p>Clap sin <code>Parser</code>-makro lesser på med magi for oss. F.eks så får vi en nyttig beskrivelse via <code>--help</code>, som seg hør og
-bør i et kommandolinjeverktøy.
-Makroen kan man konfigurere via <code>command(...)</code>-argumenter.</p>
-<p>For å vite hva brukeren har sendt inn til programmet, så trenger vi bare å gjøre følgende:</p>
+bør i et kommandolinjeverktøy.</p>
+<p>The macro can be configured through <code>command(...)</code>-arguments.</p>
+<p>To know what the user has sent to the program, we just need to do the following:</p>
 <pre><code class="language-rust hljs"><span class="hljs-keyword">let</span> <span class="hljs-variable">cli</span> = Cli::<span class="hljs-title function_ invoke__">parse</span>();
 <span class="hljs-keyword">let</span> <span class="hljs-variable">show_today</span> = cli.idag == <span class="hljs-literal">true</span> | | cli.idag == <span class="hljs-literal">false</span> &amp; &amp; cli.imorgen == <span class="hljs-literal">false</span>;
 <span class="hljs-keyword">let</span> <span class="hljs-variable">show_tomorrow</span> = cli.imorgen == <span class="hljs-literal">true</span>;
 </code></pre>
-<p>På denne måten kan vi vise enten dagens, morgendagens eller begge prisene samtidig.</p>
+<p>This way, we can show either today's, tomorrow's or both prices at the same time.</p>
 <h2>The price of power</h2>
-<p>For å bruke Tibber APIet, så må du <a href="https://developer.tibber.com/docs/guides/calling-api">opprette et API token</a>.
-Vi kan åpenart ikke hardkode et personlig token inn i programmet, og vi ønsker heller ikke at det skal ende opp på
-kommandolinje-historikken i terminalen. Vi leser det dermed inn som en miljøvariabel.</p>
+<p>To use the Tibber API, you need to <a href="https://developer.tibber.com/docs/guides/calling-api">create an API token</a>.
+Obviously, we can't hardcode a personal token into the source code. Also, we do not want it to end up in the
+command line history. Therefore, we read it in as an environment variable.</p>
 <pre><code class="language-rust hljs"><span class="hljs-keyword">let</span> <span class="hljs-variable">token</span> = <span class="hljs-keyword">match</span> env::<span class="hljs-title function_ invoke__">var_os</span>(<span class="hljs-string">"TIBBER_API_TOKEN"</span>) {
 <span class="hljs-title function_ invoke__">Some</span>(v) =&gt; v.<span class="hljs-title function_ invoke__">into_string</span>().<span class="hljs-title function_ invoke__">unwrap</span>(),
 <span class="hljs-literal">None</span> =&gt; panic ! (<span class="hljs-string">"$TIBBER_API_TOKEN is not set"</span>)
@@ -175,8 +168,7 @@ noe av det jeg liker aller best med Rust så langt.</p>
 til
 APIet, men for vårt formål er det overkill. Vi gjør heller bare en POST direkte ved
 hjelp av <a href="https://docs.rs/reqwest/latest/reqwest/">reqwest</a>-craten.</p>
-<p>Her er en hjelpefunksjon som utfører et query <code>q</code> mot Graphql-endepunktet og legger på det personlige tokenet i
-headeren.</p>
+<p>Here's a helper function that executes a Graphql-query <code>q</code> and adds the personal token in the header of the request.</p>
 <pre><code class="language-rust hljs"><span class="hljs-keyword">async</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">query</span>(token: &amp;<span class="hljs-type">String</span>, q: &amp;<span class="hljs-type">str</span>) <span class="hljs-punctuation">-&gt;</span> Response { 
   <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">body</span> = HashMap::<span class="hljs-title function_ invoke__">new</span>();
   body.<span class="hljs-title function_ invoke__">insert</span>(<span class="hljs-string">"query"</span>, q);
@@ -218,14 +210,14 @@ headeren.</p>
 <p>Å ta inn data fra den ville, skumle utsiden inn i et sterkt typet program er en interessant øvelse.
 Typer hjelper deg å være internt konsistent i programmet ditt, men du kan i prinsippet få inn hva som helst
 fra utsiden.</p>
-<p>Det første vi gjør er å sjekke om statusen på responsen er som vi forventer:</p>
+<p>The first we do is to check if the status on the response is as expected:</p>
 <pre><code class="language-rust hljs"><span class="hljs-keyword">match</span> response.<span class="hljs-title function_ invoke__">status</span>() {
   reqwest::StatusCode::OK =&gt; {
-    <span class="hljs-comment">// Håndtere fornuftig data</span>
+    <span class="hljs-comment">// Handle the proper flow</span>
   }
   other =&gt; {
-    <span class="hljs-comment">// Håndterer alle andre statuser, her har noe gått galt</span>
-    <span class="hljs-comment">// Det beste vi kan gjøre er å få panikk</span>
+    <span class="hljs-comment">// Handle all other statuses</span>
+    <span class="hljs-comment">// The best we can do is to panic</span>
     panic ! (<span class="hljs-string">"Uh oh! Something unexpected happened: {:?}"</span>, other);
   }
 };
@@ -248,7 +240,7 @@ et <a href="https://github.com/rust-lang/rfcs/pull/2584">forkastet forslag</a>. 
 i responsen. Det blir altså litt boilerplate. Som jeg nevnte tidligere så kan det unngås ved å bruke et bibliotek som f.eks <a href="https://crates.io/crates/graphql_client">graphql_client</a></p>
 <p>En <code>ApiResponse</code> har generisk <code>Data</code>, som har en generisk <code>viewer</code>. APIet har flere typer <code>viewers</code>. <code>PriceViewer</code> har
 en liste med <code>Home</code>s.
-Hvert <code>Home</code> har en <code>Subscription</code>, som har en <code>PriceInfo</code>, som har flere <code>Price</code> for nå, i dag og i morgen.</p>
+Every <code>Home</code> has a <code>Subscription</code>, which has a <code>PriceInfo</code>, which have multiple <code>Price</code> for now , today and tomorrow.</p>
 <pre><code class="language-rust hljs"><span class="hljs-meta">#[derive(Deserialize)]</span>
 <span class="hljs-meta">#[serde(rename_all = <span class="hljs-string">"camelCase"</span>)]</span>
 <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Price</span> {
@@ -261,8 +253,8 @@ Hvert <code>Home</code> har en <code>Subscription</code>, som har en <code>Price
 strenge krav til navngiving, som gjør at vi må bruke <code>serde</code> sin <code>rename_all</code> macro for å håndtere at man ikke får
 bruke camelCase på props i en <code>struct</code>.</p>
 <h2>ASCII-graph</h2>
-<p>Å visualisere grafen får vi helt gratis av <code>rasciigraph</code>-craten.
-Den tar inn en liste med verdier, og lager en tekststreng som vi kan printe.</p>
+<p>We get visualization of the chart for free by the <code>rasciigraph</code>-crate.
+It takes a lisst of values and make a string we can print.</p>
 <pre><code class="language-rust hljs"><span class="hljs-built_in">println!</span>(
   <span class="hljs-string">"{}"</span>,
   <span class="hljs-title function_ invoke__">plot</span>(price_info.today.<span class="hljs-title function_ invoke__">iter</span>().<span class="hljs-title function_ invoke__">map</span>(|p| p.total).<span class="hljs-title function_ invoke__">collect</span>(),
@@ -273,14 +265,14 @@ Den tar inn en liste med verdier, og lager en tekststreng som vi kan printe.</p>
   )
 );
 </code></pre>
-<p>Dessverre så støtter ikke <code>rasciigraph</code> en x-akse, så her har jeg (midlertidig) begått en stor synd og hardkodet inn
-en tidsakse fra <code>00:00</code> til <code>24:00</code>.</p>
-<p>Og dermed er programmet vårt komplett. Det er nå <a href="https://doc.rust-lang.org/cargo/reference/publishing.html">en smal sak</a>
-å publisere det til <a href="https://crates.io/crates/energipris">crates.io</a>, som gjør det lett for hvem som helst å installere det med følgende kommando:</p>
+<p>Unfortunately <code>rasciigraph</code> does not support an x-axis, so here I have (temporarily) commited a great sin and hardcoded
+a time axis from <code>00:00</code> to <code>24:00</code>.</p>
+<p>That completes our program. It is now <a href="https://doc.rust-lang.org/cargo/reference/publishing.html">easy</a> to publish it to <a href="https://crates.io/crates/energipris">crates.io</a>, which makes it easy
+for anyone to install it with the following command:</p>
 <p><code>cargo install energipris</code></p>
 <h2>Advantages with Rust</h2>
 <ul>
-<li>Rust er et språk som <a href="https://survey.stackoverflow.co/2022#technology-most-loved-dreaded-and-wanted">mange elsker</a>.</li>
+<li>Rust is a language <a href="https://survey.stackoverflow.co/2022#technology-most-loved-dreaded-and-wanted">many love</a>.</li>
 <li>Det har solid støtte for å lage verktøy til kommandolinjen</li>
 <li>Det er raskt
 <ul>
@@ -310,13 +302,13 @@ prosjekt før man har skjønt domenet skikkelig</li>
 <li>Det tar overraskende lang tid å kompilere selv små prosjekt</li>
 </ul>
 </li>
-<li>Streng kompilator
+<li>Strict compiler
 <ul>
 <li>Hvis målet er å kjapt teste ut et API eller en idé, så finnes det andre språk som gir deg en raskere
 utviklingshastighet.</li>
 </ul>
 </li>
-<li>Makroer kan misbrukes
+<li>Macros can be abused
 <ul>
 <li>Jeg vil heller ha mer boilerplate som jeg kan lese og forstå enn magiske makroer som "bare" er en annotasjon. Jeg
 har blitt brent for mange ganger av "smart" eller "imponerende" kode som liksom skal spare meg for masse arbeid.</li>
@@ -327,11 +319,12 @@ har blitt brent for mange ganger av "smart" eller "imponerende" kode som liksom 
 <p>Rust er såpass annerledes fra de andre språkene jeg kan at det var vanskelig å bare begynne i en ende og kode seg
 til noe som funker. Jeg traff raskt en vegg med feilmeldinger fra kompilatoren som jeg ikke hadde forutsetning for å
 forstå. Det gjelder altså å karre til seg nok basiskunnskap først, selv om feilmeldingene var aldri så hjelpsomme.</p>
-<p>Jeg kan sterkt anbefale å lese gjennom <a href="https://doc.rust-lang.org/book/">Rust-boken</a> for å komme igang.</p>
-<p>Vil jeg anbefale å bruke Rust til å lage kommandolinjeverktøy? Uten tvil, spesielt hvis det er viktig at programmet er
+<p>I'd recommend reading through the <a href="https://doc.rust-lang.org/book/">Rust-book</a> to get going.</p>
+<p>Would I recommend using Rust to make a command line tool?
+Uten tvil, spesielt hvis det er viktig at programmet er
 stabilt eller CPU-intensivt. Hvis du imidlertidig bare trenger å raske sammen et verktøy for en mindre greie, så ville
 jeg heller foreslått f.eks Python, bash eller Node/Deno.</p>
-<p>De ekstra interesserte kan lese kildekoden <a href="https://github.com/Odinodin/energipris">her</a></p>
+<p>The extra curious can read <a href="https://github.com/Odinodin/energipris">the source</a></p>
 
     </div>
   </main>

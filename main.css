@@ -346,3 +346,8 @@ figure {
     display: inline-block;
     width: min-content;
 }
+
+/* Code highlighting customization */
+code.hljs {
+    border-radius: 10px;
+}

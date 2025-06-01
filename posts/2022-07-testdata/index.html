@@ -34,7 +34,9 @@
 <pre><code class="language-typescript hljs"><span class="hljs-keyword">const</span> <span class="hljs-attr">usersByEmail</span>: <span class="hljs-title class_">Record</span>&lt;<span class="hljs-built_in">string</span>, <span class="hljs-title class_">IUser</span>&gt; = {};
 
 <span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> <span class="hljs-title function_">addUser</span> = (<span class="hljs-params"><span class="hljs-attr">user</span>: <span class="hljs-title class_">IUser</span></span>) =&gt; {
-  <span class="hljs-keyword">if</span> (usersByEmail[user.<span class="hljs-property">email</span>]) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Error</span>(<span class="hljs-string">"Email must be unique"</span>)
+  <span class="hljs-keyword">if</span> (usersByEmail[user.<span class="hljs-property">email</span>]) {
+    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Error</span>(<span class="hljs-string">"Email must be unique"</span>)
+  }
   usersByEmail[user.<span class="hljs-property">email</span>] = user;
 }
 
@@ -105,7 +107,10 @@
 }
 </code></pre>
 <p>If we want to create a user with an address in Sweden, we can do it like this:</p>
-<pre><code class="language-typescript hljs"><span class="hljs-title function_">user</span>({ <span class="hljs-attr">email</span>: <span class="hljs-string">"sven@sverige.se"</span>, <span class="hljs-attr">address</span>: <span class="hljs-title function_">address</span>({ <span class="hljs-attr">country</span>: <span class="hljs-string">"se"</span> }) })
+<pre><code class="language-typescript hljs"><span class="hljs-title function_">user</span>({ 
+  <span class="hljs-attr">email</span>: <span class="hljs-string">"sven@sverige.se"</span>, 
+  <span class="hljs-attr">address</span>: <span class="hljs-title function_">address</span>({ <span class="hljs-attr">country</span>: <span class="hljs-string">"se"</span> }) 
+})
 </code></pre>
 <p>We can now write our test like this:</p>
 <pre><code class="language-typescript hljs"><span class="hljs-title function_">test</span>(<span class="hljs-string">"can create user with a helper function"</span>, <span class="hljs-function">() =&gt;</span> {
@@ -123,7 +128,10 @@ in one place, instead of having to update all the tests when a user gets a new f
 <p>In addition to the helper functions above, you can also create some named test data variables. These can be variants of test data that are semantically meaningful. You can use the helper functions to define these. For example, it could be an <code>adminUser</code> or <code>addressInTimezoneWithDaylightSaving</code>.</p>
 <p>In the example below, we use two named <code>permissions</code>.</p>
 <pre><code class="language-typescript hljs"><span class="hljs-title function_">test</span>(<span class="hljs-string">"can use named test data"</span>, <span class="hljs-function">() =&gt;</span> {
-  <span class="hljs-keyword">const</span> newUser = <span class="hljs-title function_">user</span>({ <span class="hljs-attr">email</span>: <span class="hljs-string">"bad@example.com"</span>, <span class="hljs-attr">permissions</span>: [permissionToRead, permissionToWrite] })
+  <span class="hljs-keyword">const</span> newUser = <span class="hljs-title function_">user</span>({ 
+    <span class="hljs-attr">email</span>: <span class="hljs-string">"bad@example.com"</span>, 
+    <span class="hljs-attr">permissions</span>: [permissionToRead, permissionToWrite] 
+  })
   <span class="hljs-title function_">addUser</span>(newUser);
 
   <span class="hljs-title function_">banUser</span>(<span class="hljs-string">"bad@example.com"</span>);
