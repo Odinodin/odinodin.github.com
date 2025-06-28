@@ -17,6 +17,12 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
+code {
+    border-radius: 3px;
+    padding: 4px 6px;
+    background-color: var(--color-code-bg)
+}
+
 /* 5. Improve media defaults */
 img, picture, video, canvas, svg {
     display: block;
@@ -75,6 +81,7 @@ html {
 
     --color-border: hsl(0, 0%, 17%);
     --color-border-light: hsl(0, 0%, 50%);
+    --color-code-bg: #1a1b26;
 
     --color-box-dark: hsl(0, 0%, 20%);
 
@@ -177,7 +184,15 @@ main {
 }
 
 .page-blog {
+
+    .blog-header {
+        h1 {
+            padding-bottom: 6px;
+        }
+    }
+
     .published-container {
+        padding: 30px 0;
         display: flex;
         gap: 4px;
         align-items: center;

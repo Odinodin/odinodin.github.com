@@ -3,7 +3,7 @@
   <meta charset="utf-8">
   <link href="/main.css" rel="stylesheet" type="text/css">
   <link href="/highlight.css" rel="stylesheet" type="text/css">
-  <title>Test data tips</title>
+  <title>Test data tips for TypeScript</title>
 </head>
 
 <body>
@@ -16,18 +16,26 @@
   </div>
 </header>
   <main>
-    <h1>Test data tips</h1>
-    <div class="published-container">
-      <h3 class="color-primary">2022-08-10</h3>
-      <div>
-        <a href="/tags/testing"><div class="badge">testing</div></a>
-        <a href="/tags/typescript"><div class="badge">typescript</div></a>
+    <div class="blog-header">
+      <h1>Test data tips for TypeScript</h1>
+      <h4 class="color-secondary">Improve readability of your tests</h4>
+      <div class="published-container">
+        <h3 class="color-secondary">Published <span class="color-ternary">2022-08-10</span></h3>
+        <div class="color-primary">
+          under
+          <a href="/tags/testing">
+            <div class="badge">testing</div>
+          </a>
+          <a href="/tags/typescript">
+            <div class="badge">typescript</div>
+          </a>
+        </div>
       </div>
     </div>
     <div class="blog-content">
-    <p>Regardless of which language you use, you need test data when writing tests. Here are some tips on how to make it easier for yourself, with examples in TypeScript.</p>
+      <p>Regardless of which language you use, you need test data when writing tests. Here are some tips on how to make it easier for yourself, with examples in TypeScript.</p>
 <h2>What's the problem with test data?</h2>
-<p>Writing good tests isn't easy. A critical aspect is being able to understand what the test is about. This is important when the test fails and you're wondering why.</p>
+<p>Writing great tests isn't easy. A critical aspect is being able to understand what the test is about. This is important when the test fails and you're wondering why.</p>
 <p>A major source of confusion is the dataset required to run the test code. How do you know what's important for the test, and what's just filler to satisfy the interface requirements?</p>
 <h2>An example</h2>
 <p>Let's say we have a <code>user.ts</code> with the following code that we want to test:</p>

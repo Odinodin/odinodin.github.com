@@ -16,15 +16,21 @@
   </div>
 </header>
   <main>
-    <h1>ASCII to emoji</h1>
-    <div class="published-container">
-      <h3 class="color-primary">2023-03-08</h3>
-      <div>
-        <a href="/tags/frontend"><div class="badge">frontend</div></a>
+    <div class="blog-header">
+      <h1>ASCII to emoji</h1>
+      <h4 class="color-secondary">How to turn an image into ASCII or emoji?</h4>
+      <div class="published-container">
+        <h3 class="color-secondary">Published <span class="color-ternary">2023-03-08</span></h3>
+        <div class="color-primary">
+          under
+          <a href="/tags/frontend">
+            <div class="badge">frontend</div>
+          </a>
+        </div>
       </div>
     </div>
     <div class="blog-content">
-    <p>If you are as old as me, you probably remember the sound of a modem and the awesome ASCII drawings that welcomed you
+      <p>If you are as old as me, you probably remember the sound of a modem and the awesome ASCII drawings that welcomed you
 when you logged into a BBS.</p>
 <pre style="font-family: monospace; font-size: 0.5rem; font-weight: bold">  _  __           _                          _               
  | |/ /          | |                        | |              
@@ -70,7 +76,7 @@ image processing, e.g., if you want to increase the brightness in an image. The 
 <h2>From one dimension to another</h2>
 <p>This array is in one dimension, but an image has two dimensions. How can we extract the color of a pixel at position <code>[x, y]</code>?</p>
 <p>Each pixel is represented by four elements in the array. It looks like this:</p>
-<pre><code class="language-javascript hljs">[
+<pre><code class="language-js hljs language-javascript">[
     x0y0Red, x0y0Green, x0y0Blue, x0y0Alpha, 
     x1y0Red, x1y0Green, x1y0Blue, x1y0Alpha,
     x2y0Red, x2y0Green, x2y0Blue, x2y0Alpha,
@@ -95,11 +101,12 @@ we can choose to retain the color information in the image by applying color to 
 ASCII character. Traditionally, ASCII art doesn't have any color, so we'll stick with using grayscale.</p>
 <p>There are several ways to convert colors to grayscale, but the simplest is to take the average of the RGB values.</p>
 <p>So if the color is <code>{red: 100, green: 10, blue: 10}</code>, the grayscale value becomes:</p>
-<p><code>(100 + 10 + 10) / 3 = 40</code></p>
+<pre><code class="language-js hljs language-javascript">(<span class="hljs-number">100</span> + <span class="hljs-number">10</span> + <span class="hljs-number">10</span>) / <span class="hljs-number">3</span> = <span class="hljs-number">40</span>
+</code></pre>
 <p>The example below shows how to convert a grayscale value to an ASCII character.</p>
 <p><img src="/images/2023-02-ascii/greyscale.png" alt="Grayscale"></p>
-<pre><code>$@B%8&amp;WM#*ohkbdqwmO0QCJYXzvunrjf/|()1}[]?-+~&lt;&gt;i!lI;:,"^`'.
-</code></pre>
+<pre><code class="language-js hljs language-javascript">$@B%<span class="hljs-number">8</span>&amp;<span class="hljs-variable constant_">WM</span>#*ohkbdqwmO0QCJYXzvunrjf/|()<span class="hljs-number">1</span>}[]?-+~<span class="language-xml"><span class="hljs-tag">&lt;&gt;</span>i!lI;:,"^`'.
+</span></code></pre>
 <p>Here we can see that the ASCII character $ represents the darkest grayscale tone (0), while a period represents the lightest tone (255).
 The idea is to create a list of characters that gradually fill their "square" with fewer and fewer pixels.</p>
 <p>The code to convert a grayscale value to an ASCII character then becomes:</p>
@@ -111,14 +118,14 @@ The idea is to create a list of characters that gradually fill their "square" wi
 }
 </code></pre>
 <p>We can call this function like this:</p>
-<pre><code>const DARK_TO_BRIGHT_ASCII = "@#$&amp;%*o+i;:,.'` "
-brightnessToChar(DARK_TO_BRIGHT_ASCII, 0) // returns @
-brightnessToChar(DARK_TO_BRIGHT_ASCII, 255) // returns &amp;nbsp;
+<pre><code class="language-js hljs language-javascript"><span class="hljs-keyword">const</span> <span class="hljs-variable constant_">DARK_TO_BRIGHT_ASCII</span> = <span class="hljs-string">"@#$&amp;%*o+i;:,.'` "</span>
+<span class="hljs-title function_">brightnessToChar</span>(<span class="hljs-variable constant_">DARK_TO_BRIGHT_ASCII</span>, <span class="hljs-number">0</span>) <span class="hljs-comment">// returns @</span>
+<span class="hljs-title function_">brightnessToChar</span>(<span class="hljs-variable constant_">DARK_TO_BRIGHT_ASCII</span>, <span class="hljs-number">255</span>) <span class="hljs-comment">// returns &amp;nbsp;</span>
 </code></pre>
 <p>Here we can experiment with different variants to see which lists of ASCII characters work best. In the following, we use a shorter variant that gives a
 less detailed expression.</p>
-<pre><code>@#$&amp;%*o+i;:,.'`
-</code></pre>
+<pre><code class="language-js hljs language-javascript">@#$&amp;%*o+i;:,.<span class="hljs-string">'`
+</span></code></pre>
 <h1>Converting an image</h1>
 <p>Here I've taken a picture of a jumping happy dog, let's try to convert it to ASCII. I've removed the background beforehand to get the best possible result.
 You can of course remove the background automatically with code, but that will be another blog post.</p>

@@ -16,15 +16,21 @@
   </div>
 </header>
   <main>
-    <h1>Rust on the terminal</h1>
-    <div class="published-container">
-      <h3 class="color-primary">2023-07-12</h3>
-      <div>
-        <a href="/tags/experiments"><div class="badge">experiments</div></a>
+    <div class="blog-header">
+      <h1>Rust on the terminal</h1>
+      <h4 class="color-secondary">Type safe scripts</h4>
+      <div class="published-container">
+        <h3 class="color-secondary">Published <span class="color-ternary">2023-07-12</span></h3>
+        <div class="color-primary">
+          under
+          <a href="/tags/experiments">
+            <div class="badge">experiments</div>
+          </a>
+        </div>
       </div>
     </div>
     <div class="blog-content">
-    <p>Do you need to make a command line tool, but tired of messy bash scripts that are impossible to read?
+      <p>Do you need to make a command line tool, but tired of messy bash scripts that are impossible to read?
 Maybe it's faster to write it with a dynamic language like Python, but what about trying a strongly typed language
 like Rust?</p>
 <p>A while back I came across  <a href="https://github.com/sts10/rust-command-line-utilities">this list</a> of command line tools written in Rust.</p>
@@ -112,7 +118,7 @@ forever, and thus small size means less likely to need to change.</p>
 </code></pre>
 <p>Hold on a minute, this needs some explaining. Main is annotated with a <code>tokio</code> macro which adds support for
 asynchronous calls.<br>
-<a href="https://doc.rust-lang.org/book/ch19-06-macros.html">Makroer</a> in Rust generate code which expands when the program is compiled.</p>
+<a href="https://doc.rust-lang.org/book/ch19-06-macros.html">Macros</a> in Rust generate code which expands when the program is compiled.</p>
 <p>Alernatively you can write the following to achieve the same as the macro:</p>
 <pre><code class="language-rust hljs"><span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() {
   tokio::runtime::Builder::<span class="hljs-title function_ invoke__">new_multi_thread</span>()
@@ -133,16 +139,15 @@ following way:</p>
 <span class="hljs-meta">#[command(name = <span class="hljs-string">"energipriser"</span>)]</span>
 <span class="hljs-meta">#[command(author = <span class="hljs-string">"Odin Standal &lt;odin@odinodin.com&gt;"</span>)]</span>
 <span class="hljs-meta">#[command(version = <span class="hljs-string">"1.0"</span>)]</span>
-<span class="hljs-meta">#[command(about = <span class="hljs-string">"Henter energipriser"</span>, long_about = None)]</span>
+<span class="hljs-meta">#[command(about = <span class="hljs-string">"Fetches energy prices"</span>, long_about = None)]</span>
 <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Cli</span> {
-  <span class="hljs-meta">#[arg(long, help = <span class="hljs-string">"Viser dagens priser"</span>)]</span>
+  <span class="hljs-meta">#[arg(long, help = <span class="hljs-string">"Shows today's prices"</span>)]</span>
   idag: <span class="hljs-type">bool</span>,
-  <span class="hljs-meta">#[arg(long, help = <span class="hljs-string">"Viser morgendagens priser"</span>)]</span>
+  <span class="hljs-meta">#[arg(long, help = <span class="hljs-string">"Shows tomorrow's prices"</span>)]</span>
   imorgen: <span class="hljs-type">bool</span>,
 }
 </code></pre>
-<p>Clap sin <code>Parser</code>-makro lesser på med magi for oss. F.eks så får vi en nyttig beskrivelse via <code>--help</code>, som seg hør og
-bør i et kommandolinjeverktøy.</p>
+<p>Clap's <code>Parser</code> macro loads up with magic for us. For example, we get a useful description via <code>--help</code>, as is proper for a command line tool.</p>
 <p>The macro can be configured through <code>command(...)</code>-arguments.</p>
 <p>To know what the user has sent to the program, we just need to do the following:</p>
 <pre><code class="language-rust hljs"><span class="hljs-keyword">let</span> <span class="hljs-variable">cli</span> = Cli::<span class="hljs-title function_ invoke__">parse</span>();
@@ -159,15 +164,10 @@ command line history. Therefore, we read it in as an environment variable.</p>
 <span class="hljs-literal">None</span> =&gt; panic ! (<span class="hljs-string">"$TIBBER_API_TOKEN is not set"</span>)
 };
 </code></pre>
-<p><code>env::var_os</code> returnerer en <code>Option</code>, som er Rust sin idiomatiske måte å håndtere verdier som kan være tomme. Ikke
-noe <a href="https://en.wikipedia.org/wiki/Null_pointer">billion dollar mistake</a> her i gården.</p>
-<p>Rust har også pattern matching via <code>match</code>, som gir kompileringsfeil om du ikke håndterer alle mulige utfall. Definitivt
-noe av det jeg liker aller best med Rust så langt.</p>
-<p>Hvis programmet ikke finner miljøvariabelen, så er det bare å gi opp via <code>panic</code>.</p>
-<p>Tibber sitt API er Graphql-basert. Det finnes Rust-bibliotek som kan autogenerere klientkode basert på Graphql-skjemaet
-til
-APIet, men for vårt formål er det overkill. Vi gjør heller bare en POST direkte ved
-hjelp av <a href="https://docs.rs/reqwest/latest/reqwest/">reqwest</a>-craten.</p>
+<p><code>env::var_os</code> returns an <code>Option</code>, which is Rust's idiomatic way of handling values that might be empty. No <a href="https://en.wikipedia.org/wiki/Null_pointer">billion dollar mistake</a> here.</p>
+<p>Rust also has pattern matching via <code>match</code>, which gives compilation errors if you don't handle all possible outcomes. Definitely one of the things I like best about Rust so far.</p>
+<p>If the program can't find the environment variable, all we can do is to give up through <code>panic</code>.</p>
+<p>Tibber's API is GraphQL-based. There are Rust libraries that can auto-generate client code based on the GraphQL schema of the API, but for our purpose that's overkill. Instead, we'll just make a direct POST request using the <a href="https://docs.rs/reqwest/latest/reqwest/">reqwest</a> crate.</p>
 <p>Here's a helper function that executes a Graphql-query <code>q</code> and adds the personal token in the header of the request.</p>
 <pre><code class="language-rust hljs"><span class="hljs-keyword">async</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">query</span>(token: &amp;<span class="hljs-type">String</span>, q: &amp;<span class="hljs-type">str</span>) <span class="hljs-punctuation">-&gt;</span> Response { 
   <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">body</span> = HashMap::<span class="hljs-title function_ invoke__">new</span>();
@@ -186,7 +186,7 @@ hjelp av <a href="https://docs.rs/reqwest/latest/reqwest/">reqwest</a>-craten.</
   response
 }
 </code></pre>
-<p>For å hente f.eks nåværende pris, så ser det slik ut:</p>
+<p>To fetch, for example, the current price, it looks like this:</p>
 <pre><code class="language-rust hljs"><span class="hljs-keyword">let</span> <span class="hljs-variable">q</span> = <span class="hljs-string">"{
   viewer {
     homes {
@@ -207,9 +207,8 @@ hjelp av <a href="https://docs.rs/reqwest/latest/reqwest/">reqwest</a>-craten.</
 <span class="hljs-keyword">let</span> <span class="hljs-variable">response</span> = <span class="hljs-title function_ invoke__">query</span>( &amp; token, q).<span class="hljs-keyword">await</span>;
 </code></pre>
 <h2>Parsing JSON</h2>
-<p>Å ta inn data fra den ville, skumle utsiden inn i et sterkt typet program er en interessant øvelse.
-Typer hjelper deg å være internt konsistent i programmet ditt, men du kan i prinsippet få inn hva som helst
-fra utsiden.</p>
+<p>Taking data from the wild, scary outside into a strongly typed program is an interesting exercise.
+Types help you to be internally consistent in your program, but in principle, you can get anything from the outside.</p>
 <p>The first we do is to check if the status on the response is as expected:</p>
 <pre><code class="language-rust hljs"><span class="hljs-keyword">match</span> response.<span class="hljs-title function_ invoke__">status</span>() {
   reqwest::StatusCode::OK =&gt; {
@@ -222,24 +221,23 @@ fra utsiden.</p>
   }
 };
 </code></pre>
-<p>Hvis statuskoden er OK, så kan vi parse JSON-bodyen. Det gjør vi ved å kalle <code>serde::from_str</code>. Typen som vi sender
-inn blir brukt av parseren, dvs <code>ApiResponse&lt;PriceViewer&gt;</code>.</p>
+<p>If the status code is OK, we can parse the JSON body. We do this by calling <code>serde::from_str</code>. The type we send in is used by the parser, i.e., <code>ApiResponse&lt;PriceViewer&gt;</code>.</p>
 <pre><code class="language-rust hljs"><span class="hljs-keyword">let</span> <span class="hljs-variable">response_text</span> = response.<span class="hljs-title function_ invoke__">text</span>().<span class="hljs-keyword">await</span>.<span class="hljs-title function_ invoke__">unwrap</span>();
 
-<span class="hljs-comment">// Vi sender typen til forventet respons som ApiResponse&lt;PriceViewer&gt;</span>
+<span class="hljs-comment">// We send the type of expected response as ApiResponse&lt;PriceViewer&gt;</span>
 <span class="hljs-keyword">match</span> serde_json::from_str::&lt;ApiResponse&lt;PriceViewer&gt; &gt; ( &amp; response_text) {
   <span class="hljs-title function_ invoke__">Ok</span>(parsed) =&gt; <span class="hljs-title function_ invoke__">Some</span>(parsed),
   <span class="hljs-title function_ invoke__">Err</span>(e) =&gt; {
     println ! (<span class="hljs-string">"FAILED TO PARSE! {:?} {:?}"</span>, e, response_text);
-    <span class="hljs-literal">None</span> <span class="hljs-comment">// Det siste blir implisitt returnert</span>
+    <span class="hljs-literal">None</span> <span class="hljs-comment">// The last one is implicitly returned</span>
   }
 }
 </code></pre>
-<p>Forventet respons er definert som <code>structs</code>. Jeg fant ikke en måte å definere nøstede structs på annet enn
-et <a href="https://github.com/rust-lang/rfcs/pull/2584">forkastet forslag</a>. Så jeg endte opp med å lage structs for hvert nivå
-i responsen. Det blir altså litt boilerplate. Som jeg nevnte tidligere så kan det unngås ved å bruke et bibliotek som f.eks <a href="https://crates.io/crates/graphql_client">graphql_client</a></p>
-<p>En <code>ApiResponse</code> har generisk <code>Data</code>, som har en generisk <code>viewer</code>. APIet har flere typer <code>viewers</code>. <code>PriceViewer</code> har
-en liste med <code>Home</code>s.
+<p>Expected response is defined as <code>structs</code>. I couldn't find a way to define nested structs other than
+a <a href="https://github.com/rust-lang/rfcs/pull/2584">rejected proposal</a>. So I ended up creating structs for each level
+in the response. This results in a bit of boilerplate. As I mentioned earlier, this can be avoided by using a library like <a href="https://crates.io/crates/graphql_client">graphql_client</a></p>
+<p>An <code>ApiResponse</code> has a generic <code>Data</code>, which has a generic <code>viewer</code>. The API has several types of <code>viewers</code>. <code>PriceViewer</code> has
+a list of <code>Home</code>s.
 Every <code>Home</code> has a <code>Subscription</code>, which has a <code>PriceInfo</code>, which have multiple <code>Price</code> for now , today and tomorrow.</p>
 <pre><code class="language-rust hljs"><span class="hljs-meta">#[derive(Deserialize)]</span>
 <span class="hljs-meta">#[serde(rename_all = <span class="hljs-string">"camelCase"</span>)]</span>
@@ -249,9 +247,9 @@ Every <code>Home</code> has a <code>Subscription</code>, which has a <code>Price
   starts_at: <span class="hljs-type">String</span>,
 }
 </code></pre>
-<p><code>derive(Deserialize)</code> trigger <code>serde</code>-biblioteket sin <code>Deserialize</code> macro, som brukes når man parser JSON. Rust setter
-strenge krav til navngiving, som gjør at vi må bruke <code>serde</code> sin <code>rename_all</code> macro for å håndtere at man ikke får
-bruke camelCase på props i en <code>struct</code>.</p>
+<p><code>derive(Deserialize)</code> triggers the <code>serde</code> library's <code>Deserialize</code> macro, which is used when parsing JSON. Rust sets
+strict requirements for naming, which means we have to use <code>serde</code>'s <code>rename_all</code> macro to handle the fact that we can't
+use camelCase on props in a <code>struct</code>.</p>
 <h2>ASCII-graph</h2>
 <p>We get visualization of the chart for free by the <code>rasciigraph</code>-crate.
 It takes a lisst of values and make a string we can print.</p>
@@ -273,57 +271,57 @@ for anyone to install it with the following command:</p>
 <h2>Advantages with Rust</h2>
 <ul>
 <li>Rust is a language <a href="https://survey.stackoverflow.co/2022#technology-most-loved-dreaded-and-wanted">many love</a>.</li>
-<li>Det har solid støtte for å lage verktøy til kommandolinjen</li>
-<li>Det er raskt
+<li>It has solid support for making tools for the command line</li>
+<li>It's fast
 <ul>
-<li>Det er sjelden at ytelse er et avgjørende argument i disse dager med lynrask hardware, ofte er det viktigere at
-programmet er lett å forstå og vedlikeholde</li>
+<li>It's rare that performance is a decisive argument these days with lightning-fast hardware; often it's more important that
+the program is easy to understand and maintain</li>
 </ul>
 </li>
-<li>Sterke garantier fra kompilatoren
+<li>Strong guarantees from the compiler
 <ul>
-<li>"Når det kompilerer så virker det" er noe jeg ofte hører fra de som liker sterke typesystemer.</li>
-<li>Det krever riktignok at man bruker tid på å finne de riktige typene, noe som kan være vanskelig tidlig i et
-prosjekt før man har skjønt domenet skikkelig</li>
+<li>"When it compiles, it works" is something I often hear from those who like strong type systems.</li>
+<li>It does require that you spend time finding the right types, which can be difficult early in a
+project before you've properly understood the domain</li>
 </ul>
 </li>
-<li>God støtte for concurrency</li>
+<li>Good support for concurrency</li>
 </ul>
 <h2>Disadvantages with Rust</h2>
 <ul>
-<li>Det er ikke til å skyve under en stol at det tar tid å lære seg Rust
+<li>It's impossible to hide the fact that it takes time to learn Rust
 <ul>
-<li>Dette er ikke bare en bedre C eller Java, dette er noe ganske annet</li>
-<li>Er det verdt å lære seg? Definitivt, det vil utvide horisonten din</li>
+<li>This is not just a better C or Java, this is something quite different</li>
+<li>Is it worth learning? Definitely, it will expand your horizons</li>
 </ul>
 </li>
-<li>Treg kompilering
+<li>Slow compilation
 <ul>
-<li>Det tar overraskende lang tid å kompilere selv små prosjekt</li>
+<li>It's surprisingly slow to compile even small projects</li>
 </ul>
 </li>
 <li>Strict compiler
 <ul>
-<li>Hvis målet er å kjapt teste ut et API eller en idé, så finnes det andre språk som gir deg en raskere
-utviklingshastighet.</li>
+<li>If the goal is to quickly test an API or an idea, there are other languages that give you a faster
+development speed.</li>
 </ul>
 </li>
 <li>Macros can be abused
 <ul>
-<li>Jeg vil heller ha mer boilerplate som jeg kan lese og forstå enn magiske makroer som "bare" er en annotasjon. Jeg
-har blitt brent for mange ganger av "smart" eller "imponerende" kode som liksom skal spare meg for masse arbeid.</li>
+<li>I would rather have more boilerplate that I can read and understand than magical macros that are "just" an annotation. I
+have been burned too many times by "smart" or "impressive" code that is supposed to save me a lot of work.</li>
 </ul>
 </li>
 </ul>
 <h2>Summary</h2>
-<p>Rust er såpass annerledes fra de andre språkene jeg kan at det var vanskelig å bare begynne i en ende og kode seg
-til noe som funker. Jeg traff raskt en vegg med feilmeldinger fra kompilatoren som jeg ikke hadde forutsetning for å
-forstå. Det gjelder altså å karre til seg nok basiskunnskap først, selv om feilmeldingene var aldri så hjelpsomme.</p>
+<p>Rust is so different from the other languages I know that it was difficult to just start at one end and code
+something that works. I quickly hit a wall of error messages from the compiler that I had no foundation to
+understand. So it's important to gather enough basic knowledge first, even if the error messages were ever so helpful.</p>
 <p>I'd recommend reading through the <a href="https://doc.rust-lang.org/book/">Rust-book</a> to get going.</p>
 <p>Would I recommend using Rust to make a command line tool?
-Uten tvil, spesielt hvis det er viktig at programmet er
-stabilt eller CPU-intensivt. Hvis du imidlertidig bare trenger å raske sammen et verktøy for en mindre greie, så ville
-jeg heller foreslått f.eks Python, bash eller Node/Deno.</p>
+Without a doubt, especially if it's important that the program is
+stable or CPU-intensive. If, however, you just need to quickly put together a tool for a smaller thing, I would
+rather suggest e.g., Python, bash, or Node/Deno.</p>
 <p>The extra curious can read <a href="https://github.com/Odinodin/energipris">the source</a></p>
 
     </div>

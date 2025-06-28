@@ -16,18 +16,21 @@
   </div>
 </header>
   <main>
-    <h1>Videomoji 🎥</h1>
-    <div class="published-container">
-      <h3 class="color-primary">2023-05-10</h3>
-      <div>
-        <a href="/tags/frontend"><div class="badge">frontend</div></a>
+    <div class="blog-header">
+      <h1>Videomoji 🎥</h1>
+      <h4 class="color-secondary">Everyone loves emojis 👻 Everyone loves video 🎥 Here you get both at once 🤯</h4>
+      <div class="published-container">
+        <h3 class="color-secondary">Published <span class="color-ternary">2023-05-10</span></h3>
+        <div class="color-primary">
+          under
+          <a href="/tags/frontend">
+            <div class="badge">frontend</div>
+          </a>
+        </div>
       </div>
     </div>
     <div class="blog-content">
-    <p>Everyone loves emojis 👻</p>
-<p>Everyone loves video 🎥</p>
-<p>Here you get both at once 🤯</p>
-<p>Learn how you can combine the webcam API in the browser with emojis in a creative way.</p>
+      <p>Learn how you can combine the webcam API in the browser with emojis in a creative way.</p>
 <p>This is the sequel to the <a href="/posts/2023-02-ascii/">blog post about ASCII</a>.
 There you can read about how web technology can convert pixels in an image to ASCII and emojis.</p>
 <p>Now we're taking it a step further, and using the webcam API in the browser to transform a stream of images
@@ -186,11 +189,12 @@ All we need to do is:</p>
 <li>Request access to the webcam</li>
 <li>At regular intervals, take a picture from the webcam stream</li>
 <li>Draw that picture to a canvas element</li>
-<li>Use the canvas API to read pixel data, <em>exactly</em> as in the <a href="https://www.kodemaker.no/blogg/2023-02-ascii/">previous blog post</a></li>
+<li>Use the canvas API to read pixel data, <em>exactly</em> as in the <a href="/posts/2023-02-ascii/">previous blog post</a></li>
 </ol>
-<h3>Access to webcam</h3>
+<h3>Access to the webcam</h3>
 <p>To read a video stream from a webcam, we use the <a href="https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices">mediaDevices API</a>
-in the browser. It is <a href="https://caniuse.com/mdn-api_mediadevices">well supported</a> across all browsers and gives us the ability to request access to the user's audio and video devices.</p>
+in the browser. It is <a href="https://caniuse.com/mdn-api_mediadevices">well supported</a> across all browsers and allows us to request access to the
+user's audio and video devices.</p>
 <p>Starting a video stream can be done as follows:</p>
 <pre><code class="language-javascript hljs"><span class="hljs-keyword">const</span> stream = <span class="hljs-keyword">await</span> navigator.<span class="hljs-property">mediaDevices</span>.<span class="hljs-title function_">getUserMedia</span>({
   <span class="hljs-attr">audio</span>: <span class="hljs-literal">false</span>,
@@ -198,7 +202,7 @@ in the browser. It is <a href="https://caniuse.com/mdn-api_mediadevices">well su
 });
 </code></pre>
 <p>The user will then be asked to approve that the page gets access to a camera. The API offers several options to customize
-which device you want access to, e.g., you can easily request the camera that points forward or backward on a mobile phone.
+which device you want access to, e.g., you can request the camera that points forward or backward on a mobile phone.
 For our purposes in this blog post, we'll keep it simple, but there's plenty of room for customization here.</p>
 <p>To start the video, we need a video element on the page.</p>
 <pre><code class="language-html hljs language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">video</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"display:none"</span>
@@ -216,7 +220,8 @@ videoElement.<span class="hljs-property">srcObject</span> = stream;
 </code></pre>
 <h3>Capturing an image from the stream</h3>
 <p>Here we use the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API">canvas API</a> to read an image.
-We can use <code>context.drawImage()</code> which takes a <code>CanvasImageSource</code> as input. This can be an image, but it can also be a video element.</p>
+We can use <code>context.drawImage()</code> which takes a <code>CanvasImageSource</code> as input. This can be an image, but it can also be
+a video element.</p>
 <pre><code class="language-javascript hljs">type <span class="hljs-title class_">CanvasImageSource</span> = 
   <span class="hljs-title class_">HTMLOrSVGImageElement</span> | 
   <span class="hljs-title class_">HTMLVideoElement</span> | 
@@ -229,7 +234,7 @@ We can use <code>context.drawImage()</code> which takes a <code>CanvasImageSourc
 context.<span class="hljs-title function_">drawImage</span>(videoElement, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, width, height)
 </code></pre>
 <h3>Extracting pixel data from the video image</h3>
-<p>To extract all the pixels in the image:</p>
+<p>To extract all the pixels in a single frame, we do the following:</p>
 <pre><code class="language-javascript hljs"><span class="hljs-keyword">const</span> imageData = context.<span class="hljs-title function_">getImageData</span>(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, width, height)
 </code></pre>
 <p>We can then convert this to emojis in <em>exactly</em> the same way as I showed in the <a href="https://www.kodemaker.no/blogg/2023-02-ascii/">previous blog post</a>.</p>

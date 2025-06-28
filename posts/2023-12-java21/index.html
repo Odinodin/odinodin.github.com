@@ -16,37 +16,44 @@
   </div>
 </header>
   <main>
-    <h1>Old dog and new tricks</h1>
-    <div class="published-container">
-      <h3 class="color-primary">2023-12-06</h3>
-      <div>
-        <a href="/tags/backend"><div class="badge">backend</div></a>
+    <div class="blog-header">
+      <h1>Old dog and new tricks</h1>
+      <h4 class="color-secondary"></h4>
+      <div class="published-container">
+        <h3 class="color-secondary">Published <span class="color-ternary">2023-12-06</span></h3>
+        <div class="color-primary">
+          under
+          <a href="/tags/backend">
+            <div class="badge">backend</div>
+          </a>
+        </div>
       </div>
     </div>
     <div class="blog-content">
-    <p>Java er et konservativt språk som verdsetter bakoverkompatibilitet over fancy ny syntaks. Vi programmerere
+      <p>Java is a conservative language that value backwards compatiblity over fancy new syntax.
+Vi programmerere
 elsker å velte oss i skinnende nye features, men om du har drevet med utvikling en stund, så vet du også å sette pris på
 stabilitet. Java 21 ble akkurat sluppet, og da er det verdt å ta en kikk på hvordan språket har utviklet seg i det siste.</p>
 <img src="/images/2023-12-java21/hund1.png" alt="Gammel hund" width="300" style="float: right; margin: 0;">
 <p>Java er et konservativt språk som verdsetter bakoverkompatibilitet over fancy syntaks. Vi programmerere elsker å velte oss i skinnende nye features, men om du har drevet med utvikling en stund,
 så vet du også å sette pris på stabilitet. Java 21 ble <a href="https://openjdk.org/projects/jdk/21/">akkurat sluppet</a>, og da er det verdt å ta en kikk på hvordan språket har utviklet seg i det siste.</p>
 <h2>Records in Java</h2>
-<p>Hvis du har programmert Java før, så har du helt sikkert fått med deg at <code>records</code> er blitt en del av språket <a href="https://www.oracle.com/java/technologies/javase/16-relnote-issues.html#JDK-8246771">allerede</a>.
-Andre språk har hatt lignende funksjonalitet lenge, så det var på høy tid da det landet i Java 16 i 2021.</p>
-<p>Med <code>records</code> så slipper du å skrive boilerplate som <code>constructor</code>, gettere, <code>equals</code>, <code>hashcode</code> og <code>toString</code> selv.
+<p>If you have programmed in Java before, then you have surely noted that <code>records</code> have become part of the language <a href="https://www.oracle.com/java/technologies/javase/16-relnote-issues.html#JDK-8246771">already</a>.
+Other languages have had similar functionality for a long time, si it was about time when it landed in Java 16 in 2021.</p>
+<p>With <code>records</code> you get <code>constructor</code>, gettere, <code>equals</code>, <code>hashcode</code> og <code>toString</code> for out of the box.
 I tillegg så er <code>records</code> immutable, det vil si du kan ikke endre på verdiene når de først er satt.</p>
 <h3>Immutable?</h3>
-<p>Hva betyr det i praksis? La oss opprette en <code>record</code>, og prøve å endre på et felt.</p>
+<p>What does that mean concretely? Let's create a <code>record</code>, and try to change a field.</p>
 <pre><code class="language-java hljs"><span class="hljs-keyword">record</span> <span class="hljs-title class_">Hund</span><span class="hljs-params">(String navn, <span class="hljs-type">int</span> alder, List&lt;String&gt; venner)</span> {}
 
 <span class="hljs-type">var</span> <span class="hljs-variable">fido</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Hund</span>(<span class="hljs-string">"Fido"</span>, <span class="hljs-number">5</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;(List.of(<span class="hljs-string">"Hexi"</span>, <span class="hljs-string">"Loke"</span>)));
 fido.navn = <span class="hljs-string">"Knut"</span>; <span class="hljs-comment">// Kompilerer ikke fordi navn er final</span>
 </code></pre>
-<p>Som forventet så virker ikke det. Det følgende derimot, er lov;</p>
+<p>As expected that does not work. The following thpuogh, is allowed:</p>
 <pre><code class="language-java hljs">fido.venner.add(<span class="hljs-string">"Storm"</span>); <span class="hljs-comment">// Muterer innholdet i listen</span>
 System.out.println(fido);   <span class="hljs-comment">// Hund[navn=Fido, alder=5 venner=[Hexi, Loke, Storm]]</span>
 </code></pre>
-<p>Records er altså ikke immutable hvis et felt er mutable.</p>
+<p>Records are not immutable if a field contains something mutable.</p>
 <h3>Validation of records</h3>
 <p>For å unngå ulovlig tilstand i en applikasjon, så vil man gjerne validere <code>records</code> ved opprettelse. En ting jeg savner
 er muligheten til å sette default-verdier, så enn så lenge må du håndtere det selv.
@@ -66,7 +73,7 @@ med den ekstra koden det medfører selvsagt.</p>
 <h2>What is new in Java 21 for records?</h2>
 <p>En <code>record</code> er lett å konstruere, og nå kan man endelig hente ut data via <a href="https://openjdk.org/jeps/440">record patterns</a>.
 Dette er en populær feature i andre språk, som f.eks <code>JavaScript</code> og <code>Clojure</code>.</p>
-<p>Hvordan funker det?</p>
+<p>How does it work?</p>
 <p>Før <code>record</code>-patterns så måtte man plukke ut verdier selv:</p>
 <pre><code class="language-java hljs"><span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">printHund</span><span class="hljs-params">(Object obj)</span> {
     <span class="hljs-keyword">if</span> (obj <span class="hljs-keyword">instanceof</span> Hund h) {
@@ -102,9 +109,8 @@ Problemet er illustrert i eksemplet under. Her er det fort gjort å blande navne
 </code></pre>
 <h2>Pattern matching with switch</h2>
 <img src="/images/2023-12-java21/hund3.png" alt="Gammel hund" width="300" style="float: right; margin: 0;">
-<p>Switch i Java har frem til nå vært sørgelige greier. Med Java 21, så kan man endelig gjøre pattern
-matching.</p>
-<p>Da kan man f.eks gjøre følgende, hvor man matcher mot typen til objektet:</p>
+<p>Java's switch has until now been a sad affair. With Java 21, finally we have pattern matching through switch.</p>
+<p>This makes the following possible, where you match the type of an object:</p>
 <pre><code class="language-java hljs"><span class="hljs-keyword">static</span> String <span class="hljs-title function_">formattere</span><span class="hljs-params">(Object obj)</span> {
     <span class="hljs-keyword">return</span> <span class="hljs-keyword">switch</span> (obj) {
         <span class="hljs-keyword">case</span> Integer i -&gt; String.format(<span class="hljs-string">"int %d"</span>, i);
@@ -115,18 +121,18 @@ matching.</p>
     };
 }
 </code></pre>
-<p>Nå støtter <code>switch</code> matching mot <code>null</code>:</p>
-<pre><code class="language-java hljs"><span class="hljs-keyword">static</span> String <span class="hljs-title function_">behandle</span><span class="hljs-params">(String input)</span> {
+<p>Also <code>switch</code> now supports matching <code>null</code>:</p>
+<pre><code class="language-java hljs"><span class="hljs-keyword">static</span> String <span class="hljs-title function_">transformFoo</span><span class="hljs-params">(String input)</span> {
     <span class="hljs-keyword">return</span> <span class="hljs-keyword">switch</span> (input) {
-      <span class="hljs-keyword">case</span> <span class="hljs-literal">null</span> -&gt; <span class="hljs-string">"Er null"</span>;
-      <span class="hljs-keyword">case</span> <span class="hljs-string">"Fido"</span>, <span class="hljs-string">"Hexi"</span> -&gt; <span class="hljs-string">"En hund"</span>;
-      <span class="hljs-keyword">default</span> -&gt; <span class="hljs-string">"Noe annet"</span>;
+      <span class="hljs-keyword">case</span> <span class="hljs-literal">null</span> -&gt; <span class="hljs-string">"is zero"</span>;
+      <span class="hljs-keyword">case</span> <span class="hljs-string">"Fido"</span>, <span class="hljs-string">"Hexi"</span> -&gt; <span class="hljs-string">"A god"</span>;
+      <span class="hljs-keyword">default</span> -&gt; <span class="hljs-string">"Something else"</span>;
     };
 }
 </code></pre>
 <p>Hvis du har en <code>null</code>-sjekk i <code>switchen</code> så slipper du å sjekke det på forhånd. Merk at <code>default</code> <em>ikke</em> matcher mot null,
 så du kan fortsatt få <code>NullPointer</code> i en switch om du ikke har med <code>null</code>-casen.</p>
-<p>Du kan nå også begrense en case med en påfølgende <code>when</code>:</p>
+<p>You can now also constrain a case by following with a <code>when</code>:</p>
 <pre><code class="language-java hljs"><span class="hljs-keyword">static</span> String <span class="hljs-title function_">aldersVurdering</span><span class="hljs-params">(Hund hund)</span> {
     <span class="hljs-keyword">return</span> <span class="hljs-keyword">switch</span> (hund) {
       <span class="hljs-keyword">case</span> <span class="hljs-title function_">Hund</span><span class="hljs-params">(<span class="hljs-keyword">var</span> _n, <span class="hljs-keyword">var</span> alder, <span class="hljs-keyword">var</span> _v)</span> <span class="hljs-keyword">when</span> (alder &lt; <span class="hljs-number">3</span>) -&gt; <span class="hljs-string">"Ung"</span>;

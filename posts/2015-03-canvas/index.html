@@ -16,15 +16,21 @@
   </div>
 </header>
   <main>
-    <h1>Attractive canvas</h1>
-    <div class="published-container">
-      <h3 class="color-primary">2015-03-14</h3>
-      <div>
-        <a href="/tags/frontend"><div class="badge">frontend</div></a>
+    <div class="blog-header">
+      <h1>Attractive canvas</h1>
+      <h4 class="color-secondary">Fun with canvas and physics</h4>
+      <div class="published-container">
+        <h3 class="color-secondary">Published <span class="color-ternary">2015-03-14</span></h3>
+        <div class="color-primary">
+          under
+          <a href="/tags/frontend">
+            <div class="badge">frontend</div>
+          </a>
+        </div>
       </div>
     </div>
     <div class="blog-content">
-    <p>I just read a fantastic and interesting book about how to create digital worlds
+      <p>I just read a fantastic and interesting book about how to create digital worlds
 based on mathematical principles, <a href="http://natureofcode.com">Nature of code</a>. It inspired me to
 visualize a simple system with <a href="https://github.com/clojure/clojurescript">ClojureScript</a> and Canvas.</p>
 <p>Here is the result; click around to move the large circle.</p>
@@ -69,11 +75,9 @@ the principles are the same for 3 dimensions).</p>
 <p>One way to represent position is as a vector. This can be a bit confusing to think about since a position doesn't
 have a
 direction, but this will make it easier for us when calculating new positions later. In the code it looks like this:</p>
-<pre><code class="language-clojure hljs">
-  <span class="hljs-comment">;; x = 2 and y = 3</span>
+<pre><code class="language-clj hljs language-clojure">  <span class="hljs-comment">;; x = 2 and y = 3</span>
   [<span class="hljs-number">2</span> <span class="hljs-number">3</span>]
-</code>
-</pre>
+</code></pre>
 <p>So this is a vector in a double sense; both a geometric vector and a Clojure vector data structure.</p>
 <p>Both the small circles and the <em>attractor</em> have a position. Each of the small circles has a velocity in a given direction,
 represented as a vector.
