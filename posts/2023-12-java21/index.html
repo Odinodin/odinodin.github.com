@@ -8,14 +8,16 @@
 
 <body>
 <div class="page page-blog">
-  <header>
-  <a href="/"><h1 class="logo-text">ODINODIN</h1></a>
-  <div class="menu">
-    <a href="/">Posts</a>
-    <a href="/about">About</a>
+  <header class="glass-header">
+  <div class="container centered-container">
+    <a href="/"><h1 class="logo-text">ODINODIN</h1></a>
+    <div class="menu">
+      <a href="/">Posts</a>
+      <a href="/about">About</a>
+    </div>
   </div>
 </header>
-  <main>
+  <main class="centered-container">
     <div class="blog-header">
       <h1>Old dog and new tricks</h1>
       <h4 class="color-secondary"></h4>
@@ -55,8 +57,8 @@ System.out.println(fido);   <span class="hljs-comment">// Hund[navn=Fido, alder=
 </code></pre>
 <p>Records are not immutable if a field contains something mutable.</p>
 <h3>Validation of records</h3>
-<p>For å unngå ulovlig tilstand i en applikasjon, så vil man gjerne validere <code>records</code> ved opprettelse. En ting jeg savner
-er muligheten til å sette default-verdier, så enn så lenge må du håndtere det selv.
+<p>To avoid an illegal state in an application, you would like to validate <code>records</code> at creation time.</p>
+<p>En ting jeg savner er muligheten til å sette default-verdier, så enn så lenge må du håndtere det selv.
 Det kan man fint gjøre med den kompakte <code>constructor</code>-varianten:</p>
 <pre><code class="language-java hljs"><span class="hljs-keyword">record</span> <span class="hljs-title class_">Hund</span><span class="hljs-params">(String navn, <span class="hljs-type">int</span> alder, List&lt;String&gt; venner)</span> {
     <span class="hljs-keyword">public</span> Hund {
@@ -157,11 +159,11 @@ om denne nye strategien vil holde Java relevant i konkurransen med andre språk.
 
     </div>
   </main>
-  <footer>
-        <a href="https://github.com/odinodin">Github</a>
-        <a href="https://www.kodemaker.no">Kodemaker</a>
-        <a href="https://bsky.app/profile/odinodin.bsky.social">BlueSky</a>
-        <a href="https://www.linkedin.com/in/odinholestandal/">Linkedin</a>
+  <footer class="centered-container">
+  <a href="https://github.com/odinodin">Github</a>
+  <a href="https://www.kodemaker.no">Kodemaker</a>
+  <a href="https://bsky.app/profile/odinodin.bsky.social">BlueSky</a>
+  <a href="https://www.linkedin.com/in/odinholestandal/">Linkedin</a>
 </footer>
   <div>
 
